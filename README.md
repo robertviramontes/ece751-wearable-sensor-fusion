@@ -12,7 +12,7 @@ The Nucleo board requires drivers to interact with MATLAB. They can be downloade
 
 # Getting Started
 ## Hold To Blink Demo
-The (hold_to_blink.slx)[src/examples/hold_to_blink.slx] is a small demo that can be used to ensure your MATLAB environment is set up correctly. This should blink the green user LED (LD2) when the blue button is held down. After opening the Simulink model, it can be deployed to the board by navigating to the Hardware tab and clicking "Build, Deploy, and Start".
+The [hold_to_blink.slx](src/examples/hold_to_blink.slx) is a small demo that can be used to ensure your MATLAB environment is set up correctly. This should blink the green user LED (LD2) when the blue button is held down. After opening the Simulink model, it can be deployed to the board by navigating to the Hardware tab and clicking "Build, Deploy, and Start".
 ![image](https://user-images.githubusercontent.com/17224381/139503508-1a3c439e-b555-469d-a9e1-5aab41f5c8ad.png)
 
 
