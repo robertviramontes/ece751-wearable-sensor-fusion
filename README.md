@@ -5,10 +5,10 @@ Repository for ECE751 project on wearable sensor fusion for heart rate measureme
 ## Matlab
 Install MATLAB and the Simulink Coder and Embedded Coder packages. Those should automatically bring in all the packages they require to support them. 
 
-You should also install the Nucleo hardaware support package. (Mathworks provides instructions for this)[https://www.mathworks.com/help/releases/R2021b/supportpkg/nucleo/ug/intro.html].
+You should also install the Nucleo hardaware support package. [Mathworks provides instructions for this](https://www.mathworks.com/help/releases/R2021b/supportpkg/nucleo/ug/intro.html).
 
 ## Nulceo Board Drivers
-The Nucleo board requires drivers to interact with MATLAB. They can be downloaded directly from STM. (Mathworks has documentation)[https://www.mathworks.com/help/releases/R2021b/supportpkg/nucleo/ug/install-drives-for-simulink-coder-support-package-for-stmicroelectronics-nucleo-boards.html] on what to do with the drivers once you've downloaded them.
+The Nucleo board requires drivers to interact with MATLAB. They can be downloaded directly from STM. [Mathworks has documentation](https://www.mathworks.com/help/releases/R2021b/supportpkg/nucleo/ug/install-drives-for-simulink-coder-support-package-for-stmicroelectronics-nucleo-boards.html) on what to do with the drivers once you've downloaded them.
 
 # Getting Started
 ## Hold To Blink Demo
