@@ -8,6 +8,7 @@
  *****************************************************/
 
 #include "MAX30105.h"
+#include <cstring>
 
 // Status Registers
 static const uint8_t MAX30105_INTSTAT1 =		0x00;
@@ -626,6 +627,7 @@ uint16_t MAX30105::check(void)
     while (bytesLeftToRead > 0)
     {
       int toGet = bytesLeftToRead;
+      uint8_t rec_buf [I2C_BUFFER_LENGTH]; // receive buffer for a burst I2C read
       if (toGet > I2C_BUFFER_LENGTH)
       {
         //If toGet is 32 this is bad because we read 6 bytes (Red+IR * 3 = 6) at a time
@@ -638,7 +640,12 @@ uint16_t MAX30105::check(void)
       bytesLeftToRead -= toGet;
 
       //Request toGet number of bytes from sensor
-      _i2cPort->requestFrom(MAX30105_ADDRESS, toGet);
+      // _i2cPort->requestFrom(MAX30105_ADDRESS, toGet);
+      ret = HAL_I2C_Master_Receive(_i2cPort, MAX30105_ADDRESS, rec_buf, toGet, HAL_MAX_DELAY);
+      if (ret != HAL_OK){
+    	  // handle error
+		  return 0;
+      }
 
       while (toGet > 0)
       {
@@ -648,11 +655,20 @@ uint16_t MAX30105::check(void)
         uint8_t temp[sizeof(uint32_t)]; //Array of 4 bytes that we will convert into long
         uint32_t tempLong;
 
+        int rec_buf_pos = 0; // track position in rec_buf
+
         //Burst read three bytes - RED
         temp[3] = 0;
-        temp[2] = _i2cPort->read();
-        temp[1] = _i2cPort->read();
-        temp[0] = _i2cPort->read();
+//        temp[2] = _i2cPort->read();
+//        temp[1] = _i2cPort->read();
+//        temp[0] = _i2cPort->read();
+        // RV The Arduino Wire library does these read() functions separately,
+        // but it's easier to do as a burst with HAL. So, instead of
+        // separate reads we are translate this by pulling data from
+        // the receive buffer.
+        temp[2] = rec_buf[rec_buf_pos++];
+        temp[1] = rec_buf[rec_buf_pos++];
+        temp[0] = rec_buf[rec_buf_pos++];
 
         //Convert array to long
         memcpy(&tempLong, temp, sizeof(tempLong));
@@ -665,9 +681,12 @@ uint16_t MAX30105::check(void)
         {
           //Burst read three more bytes - IR
           temp[3] = 0;
-          temp[2] = _i2cPort->read();
-          temp[1] = _i2cPort->read();
-          temp[0] = _i2cPort->read();
+//          temp[2] = _i2cPort->read();
+//          temp[1] = _i2cPort->read();
+//          temp[0] = _i2cPort->read();
+          temp[2] = rec_buf[rec_buf_pos++];
+          temp[1] = rec_buf[rec_buf_pos++];
+          temp[0] = rec_buf[rec_buf_pos++];
 
           //Convert array to long
           memcpy(&tempLong, temp, sizeof(tempLong));
@@ -681,9 +700,13 @@ uint16_t MAX30105::check(void)
         {
           //Burst read three more bytes - Green
           temp[3] = 0;
-          temp[2] = _i2cPort->read();
-          temp[1] = _i2cPort->read();
-          temp[0] = _i2cPort->read();
+//          temp[2] = _i2cPort->read();
+//          temp[1] = _i2cPort->read();
+//          temp[0] = _i2cPort->read();
+          temp[2] = rec_buf[rec_buf_pos++];
+          temp[1] = rec_buf[rec_buf_pos++];
+          temp[0] = rec_buf[rec_buf_pos++];
+
 
           //Convert array to long
           memcpy(&tempLong, temp, sizeof(tempLong));
@@ -691,6 +714,14 @@ uint16_t MAX30105::check(void)
 		  tempLong &= 0x3FFFF; //Zero out all but 18 bits
 
           sense.green[sense.head] = tempLong;
+        }
+
+        if (rec_buf_pos != toGet)
+        {
+        	// something bad happened! the position should have incremented to
+        	// exact toGet (because the last call also uses ++)/
+        	// handle error
+        	return 0;
         }
 
         toGet -= activeLEDs * 3;
