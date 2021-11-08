@@ -786,15 +786,13 @@ uint8_t MAX30105::readRegister8(uint8_t address, uint8_t reg) {
 }
 
 void MAX30105::writeRegister8(uint8_t address, uint8_t reg, uint8_t value) {
-	  uint8_t reg_buf [1]; // register buffer
-	  uint8_t wrt_buf [1]; // write buffer
+	  uint8_t send_buf [2]; // register buffer
 
-	  reg_buf[0] = reg;
-	  wrt_buf[0] = value;
+	  // Fill send_buf with register address and value to send, then send it off at once
+	  send_buf[0] = reg;
+	  send_buf[1] = value;
 	  // Set the register to read from
-	  auto ret = HAL_I2C_Master_Transmit(_i2cPort, address, reg_buf, 1, HAL_MAX_DELAY);
-	  // Write the value
-	  ret = HAL_I2C_Master_Transmit(_i2cPort, address, wrt_buf, 1, HAL_MAX_DELAY);
+	  auto ret = HAL_I2C_Master_Transmit(_i2cPort, address, send_buf, 2, HAL_MAX_DELAY);
 
 	  if (ret != HAL_OK){
 		  // handle error
