@@ -76,7 +76,7 @@ class MAX30105 {
   void setFIFOAlmostFull(uint8_t samples);
 
   //FIFO Reading
-  // uint16_t check(void); //Checks for new data and fills FIFO
+   uint16_t check(void); //Checks for new data and fills FIFO
   uint8_t available(void); //Tells caller how many new samples are available (head - tail)
   void nextSample(void); //Advances the tail of the sense array
   uint32_t getFIFORed(void); //Returns the FIFO sample pointed to by tail

@@ -99,12 +99,19 @@ int main(void)
   /* USER CODE BEGIN 2 */
   MAX30105 hr_sens;
   hr_sens.begin(hi2c1);
+  hr_sens.setup(0x1F, 4, 2, 400, 411, 4096);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  uint32_t ir_val = 0;
+  uint32_t red_val = 0;
   while (1)
   {
+	ir_val = hr_sens.getIR();
+	red_val = hr_sens.getRed();
+	HAL_Delay(10);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

@@ -8,6 +8,7 @@
  *****************************************************/
 
 #include "MAX30105.h"
+#include <cstring>
 
 // Status Registers
 static const uint8_t MAX30105_INTSTAT1 =		0x00;
@@ -584,114 +585,154 @@ void MAX30105::nextSample(void)
 //Call regularly
 //If new data is available, it updates the head and tail in the main struct
 //Returns number of new samples obtained
-//uint16_t MAX30105::check(void)
-//{
-//  //Read register FIDO_DATA in (3-byte * number of active LED) chunks
-//  //Until FIFO_RD_PTR = FIFO_WR_PTR
-//
-//  auto readPointer = getReadPointer();
-//  auto writePointer = getWritePointer();
-//
-//  int numberOfSamples = 0;
-//
-//  //Do we have new data?
-//  if (readPointer != writePointer)
-//  {
-//    //Calculate the number of readings we need to get from sensor
-//    numberOfSamples = writePointer - readPointer;
-//    if (numberOfSamples < 0) numberOfSamples += 32; //Wrap condition
-//
-//    //We now have the number of readings, now calc bytes to read
-//    //For this example we are just doing Red and IR (3 bytes each)
-//    int bytesLeftToRead = numberOfSamples * activeLEDs * 3;
-//
-//    //Get ready to read a burst of data from the FIFO register
+uint16_t MAX30105::check(void)
+{
+  //Read register FIDO_DATA in (3-byte * number of active LED) chunks
+  //Until FIFO_RD_PTR = FIFO_WR_PTR
+
+  auto readPointer = getReadPointer();
+  auto writePointer = getWritePointer();
+
+  int numberOfSamples = 0;
+
+  //Do we have new data?
+  if (readPointer != writePointer)
+  {
+    //Calculate the number of readings we need to get from sensor
+    numberOfSamples = writePointer - readPointer;
+    if (numberOfSamples < 0) numberOfSamples += 32; //Wrap condition
+
+    //We now have the number of readings, now calc bytes to read
+    //For this example we are just doing Red and IR (3 bytes each)
+    int bytesLeftToRead = numberOfSamples * activeLEDs * 3;
+
+    //Get ready to read a burst of data from the FIFO register
 //    _i2cPort->beginTransmission(MAX30105_ADDRESS);
 //    _i2cPort->write(MAX30105_FIFODATA);
 //    _i2cPort->endTransmission();
-//
-//    //We may need to read as many as 288 bytes so we read in blocks no larger than I2C_BUFFER_LENGTH
-//    //I2C_BUFFER_LENGTH changes based on the platform. 64 bytes for SAMD21, 32 bytes for Uno.
-//    //Wire.requestFrom() is limited to BUFFER_LENGTH which is 32 on the Uno
-//    while (bytesLeftToRead > 0)
-//    {
-//      int toGet = bytesLeftToRead;
-//      if (toGet > I2C_BUFFER_LENGTH)
-//      {
-//        //If toGet is 32 this is bad because we read 6 bytes (Red+IR * 3 = 6) at a time
-//        //32 % 6 = 2 left over. We don't want to request 32 bytes, we want to request 30.
-//        //32 % 9 (Red+IR+GREEN) = 5 left over. We want to request 27.
-//
-//        toGet = I2C_BUFFER_LENGTH - (I2C_BUFFER_LENGTH % (activeLEDs * 3)); //Trim toGet to be a multiple of the samples we need to read
-//      }
-//
-//      bytesLeftToRead -= toGet;
-//
-//      //Request toGet number of bytes from sensor
-//      _i2cPort->requestFrom(MAX30105_ADDRESS, toGet);
-//
-//      while (toGet > 0)
-//      {
-//        sense.head++; //Advance the head of the storage struct
-//        sense.head %= STORAGE_SIZE; //Wrap condition
-//
-//        uint8_t temp[sizeof(uint32_t)]; //Array of 4 bytes that we will convert into long
-//        uint32_t tempLong;
-//
-//        //Burst read three bytes - RED
-//        temp[3] = 0;
+    uint8_t reg_buf [1]; // register buffer
+
+	reg_buf[0] = MAX30105_FIFODATA;
+	// Set the register to read from
+	auto ret = HAL_I2C_Master_Transmit(_i2cPort, MAX30105_ADDRESS, reg_buf, 1, HAL_MAX_DELAY);
+
+	if (ret != HAL_OK){
+	  // handle error
+	  return 0;
+	}
+
+    //We may need to read as many as 288 bytes so we read in blocks no larger than I2C_BUFFER_LENGTH
+    //I2C_BUFFER_LENGTH changes based on the platform. 64 bytes for SAMD21, 32 bytes for Uno.
+    //Wire.requestFrom() is limited to BUFFER_LENGTH which is 32 on the Uno
+    while (bytesLeftToRead > 0)
+    {
+      int toGet = bytesLeftToRead;
+      uint8_t rec_buf [I2C_BUFFER_LENGTH]; // receive buffer for a burst I2C read
+      if (toGet > I2C_BUFFER_LENGTH)
+      {
+        //If toGet is 32 this is bad because we read 6 bytes (Red+IR * 3 = 6) at a time
+        //32 % 6 = 2 left over. We don't want to request 32 bytes, we want to request 30.
+        //32 % 9 (Red+IR+GREEN) = 5 left over. We want to request 27.
+
+        toGet = I2C_BUFFER_LENGTH - (I2C_BUFFER_LENGTH % (activeLEDs * 3)); //Trim toGet to be a multiple of the samples we need to read
+      }
+
+      bytesLeftToRead -= toGet;
+
+      //Request toGet number of bytes from sensor
+      // _i2cPort->requestFrom(MAX30105_ADDRESS, toGet);
+      ret = HAL_I2C_Master_Receive(_i2cPort, MAX30105_ADDRESS, rec_buf, toGet, HAL_MAX_DELAY);
+      if (ret != HAL_OK){
+    	  // handle error
+		  return 0;
+      }
+
+      while (toGet > 0)
+      {
+        sense.head++; //Advance the head of the storage struct
+        sense.head %= STORAGE_SIZE; //Wrap condition
+
+        uint8_t temp[sizeof(uint32_t)]; //Array of 4 bytes that we will convert into long
+        uint32_t tempLong;
+
+        int rec_buf_pos = 0; // track position in rec_buf
+
+        //Burst read three bytes - RED
+        temp[3] = 0;
 //        temp[2] = _i2cPort->read();
 //        temp[1] = _i2cPort->read();
 //        temp[0] = _i2cPort->read();
-//
-//        //Convert array to long
-//        memcpy(&tempLong, temp, sizeof(tempLong));
-//
-//		tempLong &= 0x3FFFF; //Zero out all but 18 bits
-//
-//        sense.red[sense.head] = tempLong; //Store this reading into the sense array
-//
-//        if (activeLEDs > 1)
-//        {
-//          //Burst read three more bytes - IR
-//          temp[3] = 0;
+        // RV The Arduino Wire library does these read() functions separately,
+        // but it's easier to do as a burst with HAL. So, instead of
+        // separate reads we are translate this by pulling data from
+        // the receive buffer.
+        temp[2] = rec_buf[rec_buf_pos++];
+        temp[1] = rec_buf[rec_buf_pos++];
+        temp[0] = rec_buf[rec_buf_pos++];
+
+        //Convert array to long
+        memcpy(&tempLong, temp, sizeof(tempLong));
+
+		tempLong &= 0x3FFFF; //Zero out all but 18 bits
+
+        sense.red[sense.head] = tempLong; //Store this reading into the sense array
+
+        if (activeLEDs > 1)
+        {
+          //Burst read three more bytes - IR
+          temp[3] = 0;
 //          temp[2] = _i2cPort->read();
 //          temp[1] = _i2cPort->read();
 //          temp[0] = _i2cPort->read();
-//
-//          //Convert array to long
-//          memcpy(&tempLong, temp, sizeof(tempLong));
-//
-//		  tempLong &= 0x3FFFF; //Zero out all but 18 bits
-//
-//		  sense.IR[sense.head] = tempLong;
-//        }
-//
-//        if (activeLEDs > 2)
-//        {
-//          //Burst read three more bytes - Green
-//          temp[3] = 0;
+          temp[2] = rec_buf[rec_buf_pos++];
+          temp[1] = rec_buf[rec_buf_pos++];
+          temp[0] = rec_buf[rec_buf_pos++];
+
+          //Convert array to long
+          memcpy(&tempLong, temp, sizeof(tempLong));
+
+		  tempLong &= 0x3FFFF; //Zero out all but 18 bits
+
+		  sense.IR[sense.head] = tempLong;
+        }
+
+        if (activeLEDs > 2)
+        {
+          //Burst read three more bytes - Green
+          temp[3] = 0;
 //          temp[2] = _i2cPort->read();
 //          temp[1] = _i2cPort->read();
 //          temp[0] = _i2cPort->read();
-//
-//          //Convert array to long
-//          memcpy(&tempLong, temp, sizeof(tempLong));
-//
-//		  tempLong &= 0x3FFFF; //Zero out all but 18 bits
-//
-//          sense.green[sense.head] = tempLong;
-//        }
-//
-//        toGet -= activeLEDs * 3;
-//      }
-//
-//    } //End while (bytesLeftToRead > 0)
-//
-//  } //End readPtr != writePtr
-//
-//  return (numberOfSamples); //Let the world know how much new data we found
-//}
+          temp[2] = rec_buf[rec_buf_pos++];
+          temp[1] = rec_buf[rec_buf_pos++];
+          temp[0] = rec_buf[rec_buf_pos++];
+
+
+          //Convert array to long
+          memcpy(&tempLong, temp, sizeof(tempLong));
+
+		  tempLong &= 0x3FFFF; //Zero out all but 18 bits
+
+          sense.green[sense.head] = tempLong;
+        }
+
+        if (rec_buf_pos != toGet)
+        {
+        	// something bad happened! the position should have incremented to
+        	// exact toGet (because the last call also uses ++)/
+        	// handle error
+        	return 0;
+        }
+
+        toGet -= activeLEDs * 3;
+      }
+
+    } //End while (bytesLeftToRead > 0)
+
+  } //End readPtr != writePtr
+
+  return (numberOfSamples); //Let the world know how much new data we found
+}
 
 //Check for new data but give up after a certain amount of time
 //Returns true if new data was found
@@ -704,8 +745,8 @@ bool MAX30105::safeCheck(uint8_t maxTimeToCheck)
   {
 	if(HAL_GetTick() - markTime > maxTimeToCheck) return(false);
 
-//	if(check() == true) //We found new data!
-//	  return(true);
+	if(check() == true) //We found new data!
+	  return(true);
 
 	HAL_Delay(1);
   }
@@ -745,15 +786,13 @@ uint8_t MAX30105::readRegister8(uint8_t address, uint8_t reg) {
 }
 
 void MAX30105::writeRegister8(uint8_t address, uint8_t reg, uint8_t value) {
-	  uint8_t reg_buf [1]; // register buffer
-	  uint8_t wrt_buf [1]; // write buffer
+	  uint8_t send_buf [2]; // register buffer
 
-	  reg_buf[0] = reg;
-	  wrt_buf[0] = value;
+	  // Fill send_buf with register address and value to send, then send it off at once
+	  send_buf[0] = reg;
+	  send_buf[1] = value;
 	  // Set the register to read from
-	  auto ret = HAL_I2C_Master_Transmit(_i2cPort, address, reg_buf, 1, HAL_MAX_DELAY);
-	  // Write the value
-	  ret = HAL_I2C_Master_Transmit(_i2cPort, address, wrt_buf, 1, HAL_MAX_DELAY);
+	  auto ret = HAL_I2C_Master_Transmit(_i2cPort, address, send_buf, 2, HAL_MAX_DELAY);
 
 	  if (ret != HAL_OK){
 		  // handle error
