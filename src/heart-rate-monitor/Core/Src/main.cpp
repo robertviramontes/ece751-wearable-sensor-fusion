@@ -23,6 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "MAX30105.h"
+#include <string.h>
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -105,12 +107,32 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  uint16_t data_in[2];
+  uint8_t buf[16];
   uint32_t ir_val = 0;
   uint32_t red_val = 0;
   while (1)
   {
 	ir_val = hr_sens.getIR();
 	red_val = hr_sens.getRed();
+
+	sprintf((char*)buf,"IR VAL:%ld \r\n",ir_val);
+	HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 16);
+	sprintf((char*)buf,"RED VAL:%ld \r\n",red_val);
+	HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 16);
+
+/*	HAL_StatusTypeDef result = HAL_I2S_Receive(&hi2s2, data_in, 2, 100);
+
+	  if (result == HAL_OK) {
+		  int32_t data_full = (int32_t) ((data_in[0] << 16) | data_in[1]);
+		  int32_t audio = (int32_t) (data_full >> 14);
+		  uint32_t counter = 10;
+		  sprintf((char*)buf,"%ld \r\n",audio);
+		  HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 16);
+		  //HAL_Delay(100);
+		  while(counter-- );
+		  } */
+
 	HAL_Delay(10);
     /* USER CODE END WHILE */
 
@@ -118,7 +140,6 @@ int main(void)
   }
   /* USER CODE END 3 */
 }
-
 /**
   * @brief System Clock Configuration
   * @retval None
