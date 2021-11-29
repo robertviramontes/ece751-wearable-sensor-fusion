@@ -101,7 +101,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   MAX30105 hr_sens;
   hr_sens.begin(hi2c1);
-  hr_sens.setup(0x1F, 4, 2, 400, 411, 4096);
+  hr_sens.setup(0x1D, 4, 2, 1000, 215, 8192);
 
   /* USER CODE END 2 */
 
@@ -118,8 +118,8 @@ int main(void)
 
 	sprintf((char*)buf,"IR VAL:%ld \r\n",ir_val);
 	HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 16);
-	sprintf((char*)buf,"RED VAL:%ld \r\n",red_val);
-	HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 16);
+	//sprintf((char*)buf,"RED VAL:%ld \r\n",red_val);
+	//HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 16);
 
 /*	HAL_StatusTypeDef result = HAL_I2S_Receive(&hi2s2, data_in, 2, 100);
 
