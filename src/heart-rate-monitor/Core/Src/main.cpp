@@ -25,6 +25,8 @@
 #include "MAX30105.h"
 #include <string.h>
 #include <stdio.h>
+
+#include "hr_processing.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,13 +60,55 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_I2S2_Init(void);
-/* USER CODE BEGIN PFP */
 
+/* USER CODE BEGIN PFP */
+static void argInit_200x1_real_T(double result[200]);
+static double argInit_real_T(void);
+static void main_hr_processing(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+/* Function Definitions */
+/*
+ * Arguments    : double result[200]
+ * Return Type  : void
+ */
+static void argInit_200x1_real_T(double result[200])
+{
+  int idx0;
+  /* Loop over the array to initialize each element. */
+  for (idx0 = 0; idx0 < 200; idx0++) {
+    /* Set the value of the array element.
+Change this value to the value that the application requires. */
+    result[idx0] = argInit_real_T();
+  }
+}
 
+/*
+ * Arguments    : void
+ * Return Type  : double
+ */
+static double argInit_real_T(void)
+{
+  return 0.0;
+}
+
+/*
+ * Arguments    : void
+ * Return Type  : void
+ */
+static void main_hr_processing(void)
+{
+  double ppg_data_tmp[200];
+  double heart_rate;
+  /* Initialize function 'hr_processing' input arguments. */
+  /* Initialize function input argument 'ppg_data'. */
+  argInit_200x1_real_T(ppg_data_tmp);
+  /* Initialize function input argument 'mic_data'. */
+  /* Call the entry-point 'hr_processing'. */
+  heart_rate = hr_processing(ppg_data_tmp, ppg_data_tmp);
+}
 /* USER CODE END 0 */
 
 /**
@@ -90,7 +134,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  main_hr_processing();
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -135,8 +179,8 @@ int main(void)
 
 	HAL_Delay(10);
     /* USER CODE END WHILE */
-
     /* USER CODE BEGIN 3 */
+	hr_processing_terminate();
   }
   /* USER CODE END 3 */
 }
