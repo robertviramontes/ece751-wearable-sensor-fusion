@@ -716,13 +716,13 @@ uint16_t MAX30105::check(void)
           sense.green[sense.head] = tempLong;
         }
 
-        if (rec_buf_pos != toGet)
+        /*if (rec_buf_pos != toGet)
         {
         	// something bad happened! the position should have incremented to
         	// exact toGet (because the last call also uses ++)/
         	// handle error
         	return 0;
-        }
+        }*/
 
         toGet -= activeLEDs * 3;
       }
@@ -740,10 +740,10 @@ uint16_t MAX30105::check(void)
 bool MAX30105::safeCheck(uint8_t maxTimeToCheck)
 {
   uint32_t markTime = HAL_GetTick();
-
   while(1)
   {
-	if(HAL_GetTick() - markTime > maxTimeToCheck) return(false);
+	uint32_t delta = HAL_GetTick();
+//	if(HAL_GetTick() - markTime > maxTimeToCheck) return(false);
 
 	if(check() == true) //We found new data!
 	  return(true);

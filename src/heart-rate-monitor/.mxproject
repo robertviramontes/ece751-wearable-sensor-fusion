@@ -9,17 +9,17 @@ CDefines=USE_HAL_DRIVER;STM32F411xE;USE_HAL_DRIVER;USE_HAL_DRIVER;
 [PreviousGenFiles]
 AdvancedFolderStructure=true
 HeaderFileListSize=3
-HeaderFiles#0=C:/Users/Robert Viramontes/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Inc/stm32f4xx_it.h
-HeaderFiles#1=C:/Users/Robert Viramontes/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Inc/stm32f4xx_hal_conf.h
-HeaderFiles#2=C:/Users/Robert Viramontes/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Inc/main.h
+HeaderFiles#0=C:/Users/Kai Pederson/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Inc/stm32f4xx_it.h
+HeaderFiles#1=C:/Users/Kai Pederson/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Inc/stm32f4xx_hal_conf.h
+HeaderFiles#2=C:/Users/Kai Pederson/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Inc/main.h
 HeaderFolderListSize=1
-HeaderPath#0=C:/Users/Robert Viramontes/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Inc
+HeaderPath#0=C:/Users/Kai Pederson/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Inc
 HeaderFiles=;
 SourceFileListSize=3
-SourceFiles#0=C:/Users/Robert Viramontes/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Src/stm32f4xx_it.c
-SourceFiles#1=C:/Users/Robert Viramontes/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Src/stm32f4xx_hal_msp.c
-SourceFiles#2=C:/Users/Robert Viramontes/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Src/main.c
+SourceFiles#0=C:/Users/Kai Pederson/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Src/stm32f4xx_it.c
+SourceFiles#1=C:/Users/Kai Pederson/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Src/stm32f4xx_hal_msp.c
+SourceFiles#2=C:/Users/Kai Pederson/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Src/main.c
 SourceFolderListSize=1
-SourcePath#0=C:/Users/Robert Viramontes/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Src
+SourcePath#0=C:/Users/Kai Pederson/Documents/GitHub/ece751-wearable-sensor-fusion/src/heart-rate-monitor/Core/Src
 SourceFiles=;
 

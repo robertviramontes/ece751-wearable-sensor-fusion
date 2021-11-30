@@ -46,7 +46,10 @@
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
 
-I2S_HandleTypeDef hi2s2;
+I2S_HandleTypeDef hi2s1;
+DMA_HandleTypeDef hdma_spi1_rx;
+
+TIM_HandleTypeDef htim11;
 
 UART_HandleTypeDef huart2;
 
@@ -58,10 +61,12 @@ UART_HandleTypeDef huart2;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_I2S1_Init(void);
+static void MX_DMA_Init(void);
 static void MX_I2C1_Init(void);
-static void MX_I2S2_Init(void);
-
+static void MX_TIM11_Init(void);
 /* USER CODE BEGIN PFP */
+void DMATransferComplete(DMA_HandleTypeDef *DmaHandle);
 static void argInit_200x1_real_T(double result[200]);
 static double argInit_real_T(void);
 static void main_hr_processing(void);
@@ -69,6 +74,8 @@ static void main_hr_processing(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+uint16_t data_in[1024];
+MAX30105 hr_sens;
 /* Function Definitions */
 /*
  * Arguments    : double result[200]
@@ -141,46 +148,39 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_I2C1_Init();
-  MX_I2S2_Init();
+  MX_DMA_Init();
+  MX_I2S1_Init();
+  MX_TIM11_Init();
   /* USER CODE BEGIN 2 */
-  MAX30105 hr_sens;
+
   hr_sens.begin(hi2c1);
   hr_sens.setup(0x1D, 4, 2, 1000, 215, 8192);
-
+  HAL_I2S_Receive_DMA(&hi2s1, data_in, 1024);
+  HAL_Delay(10);
+  // Start timer
+  HAL_TIM_Base_Start_IT(&htim11);
+  int32_t data_full;
+  int32_t audio1;
+  int32_t audio2;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint16_t data_in[2];
-  uint8_t buf[16];
+  uint8_t buffer[24];
   uint32_t ir_val = 0;
   uint32_t red_val = 0;
   while (1)
   {
-	ir_val = hr_sens.getIR();
-	red_val = hr_sens.getRed();
-
-	sprintf((char*)buf,"IR VAL:%ld \r\n",ir_val);
-	HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 16);
+	//ir_val = hr_sens.getIR();
+	//red_val = hr_sens.getRed();
+	//sprintf((char*)buffer,"IR VAL:%ld \r\n",ir_val);
+	//HAL_UART_Transmit(&huart2, buffer, strlen((char*)buffer),100);
 	//sprintf((char*)buf,"RED VAL:%ld \r\n",red_val);
 	//HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 16);
-
-/*	HAL_StatusTypeDef result = HAL_I2S_Receive(&hi2s2, data_in, 2, 100);
-
-	  if (result == HAL_OK) {
-		  int32_t data_full = (int32_t) ((data_in[0] << 16) | data_in[1]);
-		  int32_t audio = (int32_t) (data_full >> 14);
-		  uint32_t counter = 10;
-		  sprintf((char*)buf,"%ld \r\n",audio);
-		  HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 16);
-		  //HAL_Delay(100);
-		  while(counter-- );
-		  } */
-
-	HAL_Delay(10);
+	//HAL_Delay(100);
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
-	hr_processing_terminate();
+	//hr_processing_terminate();
   }
   /* USER CODE END 3 */
 }
@@ -263,39 +263,79 @@ static void MX_I2C1_Init(void)
 }
 
 /**
-  * @brief I2S2 Initialization Function
+  * @brief I2S1 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_I2S2_Init(void)
+static void MX_I2S1_Init(void)
 {
 
-  /* USER CODE BEGIN I2S2_Init 0 */
+  /* USER CODE BEGIN I2S1_Init 0 */
 
-  /* USER CODE END I2S2_Init 0 */
+  /* USER CODE END I2S1_Init 0 */
 
-  /* USER CODE BEGIN I2S2_Init 1 */
+  /* USER CODE BEGIN I2S1_Init 1 */
 
-  /* USER CODE END I2S2_Init 1 */
-  hi2s2.Instance = SPI2;
-  hi2s2.Init.Mode = I2S_MODE_MASTER_TX;
-  hi2s2.Init.Standard = I2S_STANDARD_PHILIPS;
-  hi2s2.Init.DataFormat = I2S_DATAFORMAT_16B;
-  hi2s2.Init.MCLKOutput = I2S_MCLKOUTPUT_DISABLE;
-  hi2s2.Init.AudioFreq = I2S_AUDIOFREQ_8K;
-  hi2s2.Init.CPOL = I2S_CPOL_LOW;
-  hi2s2.Init.ClockSource = I2S_CLOCK_PLL;
-  hi2s2.Init.FullDuplexMode = I2S_FULLDUPLEXMODE_ENABLE;
-  if (HAL_I2S_Init(&hi2s2) != HAL_OK)
+  /* USER CODE END I2S1_Init 1 */
+  hi2s1.Instance = SPI1;
+  hi2s1.Init.Mode = I2S_MODE_MASTER_RX;
+  hi2s1.Init.Standard = I2S_STANDARD_PHILIPS;
+  hi2s1.Init.DataFormat = I2S_DATAFORMAT_24B;
+  hi2s1.Init.MCLKOutput = I2S_MCLKOUTPUT_DISABLE;
+  hi2s1.Init.AudioFreq = I2S_AUDIOFREQ_32K;
+  hi2s1.Init.CPOL = I2S_CPOL_LOW;
+  hi2s1.Init.ClockSource = I2S_CLOCK_PLL;
+  hi2s1.Init.FullDuplexMode = I2S_FULLDUPLEXMODE_DISABLE;
+  if (HAL_I2S_Init(&hi2s1) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN I2S2_Init 2 */
+  /* USER CODE BEGIN I2S1_Init 2 */
 
-  /* USER CODE END I2S2_Init 2 */
+  /* USER CODE END I2S1_Init 2 */
 
 }
 
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA2_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA2_Stream0_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+
+}
+static void MX_TIM11_Init(void)
+{
+
+  /* USER CODE BEGIN TIM11_Init 0 */
+
+  /* USER CODE END TIM11_Init 0 */
+
+  /* USER CODE BEGIN TIM11_Init 1 */
+
+  /* USER CODE END TIM11_Init 1 */
+  htim11.Instance = TIM11;
+  htim11.Init.Prescaler = 840;
+  htim11.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim11.Init.Period = 10000;
+  htim11.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim11.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim11) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM11_Init 2 */
+
+  /* USER CODE END TIM11_Init 2 */
+
+}
 /**
   * @brief USART2 Initialization Function
   * @param None
@@ -329,6 +369,48 @@ static void MX_USART2_UART_Init(void)
 
 }
 
+/* USER CODE BEGIN 4 */
+
+// Callback: timer has rolled over
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  // Check which version of the timer triggered this callback and toggle LED
+  if (htim == &htim11 )
+  {
+	/*uint8_t buffer[24];
+	uint32_t ir_val = 0;
+	uint32_t red_val = 0;
+	ir_val = hr_sens.getIR();
+	red_val = hr_sens.getRed();
+	sprintf((char*)buffer,"IR VAL:%ld \r\n",ir_val);
+	HAL_UART_Transmit(&huart2, buffer, strlen((char*)buffer),100);
+	//sprintf((char*)buf,"RED VAL:%ld \r\n",red_val);
+	//HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 16);
+	HAL_Delay(100);
+	/* USER CODE END WHILE */
+	/* USER CODE BEGIN 3 */
+	//hr_processing_terminate();
+  }
+}
+
+void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
+{
+	uint8_t buf[16];
+	int32_t audio1 = (int32_t)(data_in[0] << 16 | data_in[1]);
+	audio1 = audio1 >> 14;
+	sprintf((char*)buf,"%i\r\n",audio1);
+	HAL_UART_Transmit_IT(&huart2, buf, strlen((char*)buf));
+}
+
+
+
+void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
+{
+uint16_t b = data_in[1];
+uint16_t a = data_in[0];
+a++; b++;
+}
+
 /**
   * @brief GPIO Initialization Function
   * @param None
@@ -345,20 +427,13 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+  //HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : LD2_Pin */
-  GPIO_InitStruct.Pin = LD2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
 
 }
 
