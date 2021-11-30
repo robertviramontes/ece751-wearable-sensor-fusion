@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
+extern DMA_HandleTypeDef hdma_spi1_rx;
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
@@ -156,11 +157,11 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* hi2s)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
-  if(hi2s->Instance==SPI2)
+  if(hi2s->Instance==SPI1)
   {
-  /* USER CODE BEGIN SPI2_MspInit 0 */
+  /* USER CODE BEGIN SPI1_MspInit 0 */
 
-  /* USER CODE END SPI2_MspInit 0 */
+  /* USER CODE END SPI1_MspInit 0 */
   /** Initializes the peripherals clock
   */
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2S;
@@ -173,40 +174,43 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* hi2s)
     }
 
     /* Peripheral clock enable */
-    __HAL_RCC_SPI2_CLK_ENABLE();
+    __HAL_RCC_SPI1_CLK_ENABLE();
 
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    /**I2S2 GPIO Configuration
-    PC2     ------> I2S2_ext_SD
-    PC3     ------> I2S2_SD
-    PB10     ------> I2S2_CK
-    PB12     ------> I2S2_WS
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    /**I2S1 GPIO Configuration
+    PA4     ------> I2S1_WS
+    PA5     ------> I2S1_CK
+    PA7     ------> I2S1_SD
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_2;
+    GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF6_I2S2ext;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_3;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    /* I2S1 DMA Init */
+    /* SPI1_RX Init */
+    hdma_spi1_rx.Instance = DMA2_Stream0;
+    hdma_spi1_rx.Init.Channel = DMA_CHANNEL_3;
+    hdma_spi1_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_spi1_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_spi1_rx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_spi1_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_spi1_rx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    hdma_spi1_rx.Init.Mode = DMA_CIRCULAR;
+    hdma_spi1_rx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_spi1_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    if (HAL_DMA_Init(&hdma_spi1_rx) != HAL_OK)
+    {
+      Error_Handler();
+    }
 
-    GPIO_InitStruct.Pin = GPIO_PIN_10|GPIO_PIN_12;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    __HAL_LINKDMA(hi2s,hdmarx,hdma_spi1_rx);
 
-  /* USER CODE BEGIN SPI2_MspInit 1 */
+  /* USER CODE BEGIN SPI1_MspInit 1 */
 
-  /* USER CODE END SPI2_MspInit 1 */
+  /* USER CODE END SPI1_MspInit 1 */
   }
 
 }
@@ -219,27 +223,76 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* hi2s)
 */
 void HAL_I2S_MspDeInit(I2S_HandleTypeDef* hi2s)
 {
-  if(hi2s->Instance==SPI2)
+  if(hi2s->Instance==SPI1)
   {
-  /* USER CODE BEGIN SPI2_MspDeInit 0 */
+  /* USER CODE BEGIN SPI1_MspDeInit 0 */
 
-  /* USER CODE END SPI2_MspDeInit 0 */
+  /* USER CODE END SPI1_MspDeInit 0 */
     /* Peripheral clock disable */
-    __HAL_RCC_SPI2_CLK_DISABLE();
+    __HAL_RCC_SPI1_CLK_DISABLE();
 
-    /**I2S2 GPIO Configuration
-    PC2     ------> I2S2_ext_SD
-    PC3     ------> I2S2_SD
-    PB10     ------> I2S2_CK
-    PB12     ------> I2S2_WS
+    /**I2S1 GPIO Configuration
+    PA4     ------> I2S1_WS
+    PA5     ------> I2S1_CK
+    PA7     ------> I2S1_SD
     */
-    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_2|GPIO_PIN_3);
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_7);
 
-    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_10|GPIO_PIN_12);
+    /* I2S1 DMA DeInit */
+    HAL_DMA_DeInit(hi2s->hdmarx);
+  /* USER CODE BEGIN SPI1_MspDeInit 1 */
 
-  /* USER CODE BEGIN SPI2_MspDeInit 1 */
+  /* USER CODE END SPI1_MspDeInit 1 */
+  }
 
-  /* USER CODE END SPI2_MspDeInit 1 */
+}
+
+/**
+* @brief TIM_Base MSP Initialization
+* This function configures the hardware resources used in this example
+* @param htim_base: TIM_Base handle pointer
+* @retval None
+*/
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
+{
+  if(htim_base->Instance==TIM11)
+  {
+  /* USER CODE BEGIN TIM11_MspInit 0 */
+
+  /* USER CODE END TIM11_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_TIM11_CLK_ENABLE();
+    /* TIM11 interrupt Init */
+    HAL_NVIC_SetPriority(TIM1_TRG_COM_TIM11_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(TIM1_TRG_COM_TIM11_IRQn);
+  /* USER CODE BEGIN TIM11_MspInit 1 */
+
+  /* USER CODE END TIM11_MspInit 1 */
+  }
+
+}
+
+/**
+* @brief TIM_Base MSP De-Initialization
+* This function freeze the hardware resources used in this example
+* @param htim_base: TIM_Base handle pointer
+* @retval None
+*/
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
+{
+  if(htim_base->Instance==TIM11)
+  {
+  /* USER CODE BEGIN TIM11_MspDeInit 0 */
+
+  /* USER CODE END TIM11_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_TIM11_CLK_DISABLE();
+
+    /* TIM11 interrupt DeInit */
+    HAL_NVIC_DisableIRQ(TIM1_TRG_COM_TIM11_IRQn);
+  /* USER CODE BEGIN TIM11_MspDeInit 1 */
+
+  /* USER CODE END TIM11_MspDeInit 1 */
   }
 
 }
@@ -273,6 +326,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    /* USART2 interrupt Init */
+    HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USER CODE BEGIN USART2_MspInit 1 */
 
   /* USER CODE END USART2_MspInit 1 */
@@ -302,6 +358,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
     */
     HAL_GPIO_DeInit(GPIOA, USART_TX_Pin|USART_RX_Pin);
 
+    /* USART2 interrupt DeInit */
+    HAL_NVIC_DisableIRQ(USART2_IRQn);
   /* USER CODE BEGIN USART2_MspDeInit 1 */
 
   /* USER CODE END USART2_MspDeInit 1 */
