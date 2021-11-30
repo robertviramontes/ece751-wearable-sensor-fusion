@@ -54,7 +54,7 @@ TIM_HandleTypeDef htim11;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
+volatile uint16_t test_array[16];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -75,7 +75,7 @@ static void main_hr_processing(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 uint16_t data_in[1024];
-MAX30105 hr_sens;
+MAX30105 *hr_sens;
 /* Function Definitions */
 /*
  * Arguments    : double result[200]
@@ -152,13 +152,14 @@ int main(void)
   MX_I2S1_Init();
   MX_TIM11_Init();
   /* USER CODE BEGIN 2 */
-
-  hr_sens.begin(hi2c1);
-  hr_sens.setup(0x1D, 4, 2, 1000, 215, 8192);
-  HAL_I2S_Receive_DMA(&hi2s1, data_in, 1024);
-  HAL_Delay(10);
+  test_array[0] = 121;
+  hr_sens = new MAX30105();
+  hr_sens->begin(hi2c1);
+  hr_sens->setup(0x1D, 4, 2, 1000, 215, 8192);
+  HAL_I2S_Receive_DMA(&hi2s1, data_in, 512);
   // Start timer
   HAL_TIM_Base_Start_IT(&htim11);
+  test_array[1] = 122;
   int32_t data_full;
   int32_t audio1;
   int32_t audio2;
@@ -377,6 +378,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   // Check which version of the timer triggered this callback and toggle LED
   if (htim == &htim11 )
   {
+	  uint16_t check = test_array[0];
+	  check = hr_sens->readPartID();
 	/*uint8_t buffer[24];
 	uint32_t ir_val = 0;
 	uint32_t red_val = 0;
