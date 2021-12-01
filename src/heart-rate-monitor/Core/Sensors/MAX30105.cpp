@@ -743,12 +743,12 @@ bool MAX30105::safeCheck(uint8_t maxTimeToCheck)
   while(1)
   {
 	uint32_t delta = HAL_GetTick();
-//	if(HAL_GetTick() - markTime > maxTimeToCheck) return(false);
+	if(HAL_GetTick() - markTime > maxTimeToCheck) return(false);
 
 	if(check() == true) //We found new data!
 	  return(true);
 
-	HAL_Delay(1);
+	//HAL_Delay(1);
   }
 }
 
