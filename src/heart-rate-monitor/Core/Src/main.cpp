@@ -155,7 +155,7 @@ int main(void)
   test_array[0] = 121;
   hr_sens = new MAX30105();
   hr_sens->begin(hi2c1);
-  hr_sens->setup(0x1D, 4, 2, 1000, 215, 8192);
+  hr_sens->setup(0x1D, 4, 2, 200, 215, 8192);
   // Start timer
   HAL_TIM_Base_Start_IT(&htim11);
   HAL_I2S_Receive_DMA(&hi2s1, data_in, 4);
@@ -323,9 +323,9 @@ static void MX_TIM11_Init(void)
 
   /* USER CODE END TIM11_Init 1 */
   htim11.Instance = TIM11;
-  htim11.Init.Prescaler = 840;
+  htim11.Init.Prescaler = 8400;
   htim11.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim11.Init.Period = 10000;
+  htim11.Init.Period = 200;
   htim11.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim11.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim11) != HAL_OK)
@@ -378,39 +378,28 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   // Check which version of the timer triggered this callback and toggle LED
   if (htim == &htim11 )
   {
-	uint16_t check = test_array[0];
 	uint8_t buffer[24];
 	uint32_t ir_val = 0;
 	uint32_t red_val = 0;
-	ir_val = hr_sens->getIR();
 	red_val = hr_sens->getRed();
-	sprintf((char*)buffer,"IR VAL:%ld \r\n",ir_val);
-	HAL_UART_Transmit(&huart2, buffer, strlen((char*)buffer),10);
+	ir_val = hr_sens->getIR();
+	//sprintf((char*)buffer,"IR VAL:%ld \r\n",ir_val);
+	//HAL_UART_Transmit(&huart2, buffer, strlen((char*)buffer), 10);
 	sprintf((char*)buffer,"RED VAL:%ld \r\n",red_val);
-	HAL_UART_Transmit(&huart2, buffer, strlen((char*)buffer), 10);
-	//HAL_Delay(100);
-	/* USER CODE END WHILE */
-	/* USER CODE BEGIN 3 */
+	HAL_UART_Transmit(&huart2, buffer, strlen((char*)buffer), 1);
 	hr_processing_terminate();
   }
 }
 
 void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
-	uint8_t buf[16];
+	uint8_t buf[32];
 	int32_t audio1 = (int32_t)(data_in[0] << 16 | data_in[1]);
 	audio1 = audio1 >> 14;
-	sprintf((char*)buf,"%i\r\n",audio1);
-	HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 100);
-}
-
-
-
-void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
-{
-uint16_t b = data_in[1];
-uint16_t a = data_in[0];
-a++; b++;
+	int32_t audio2 = (int32_t)(data_in[4] << 16 | data_in[5]);
+	audio2 = audio2 >> 14;
+	sprintf((char*)buf,"%i\r\n%i\r\n",audio1, audio2);
+	HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 1);
 }
 
 /**

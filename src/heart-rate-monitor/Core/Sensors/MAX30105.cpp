@@ -536,11 +536,7 @@ uint32_t MAX30105::getRed(void)
 //Report the most recent IR value
 uint32_t MAX30105::getIR(void)
 {
-  //Check the sensor for new data for 250ms
-  if(safeCheck(250))
-    return (sense.IR[sense.head]);
-  else
-    return(0); //Sensor failed to find new data
+  return (sense.IR[sense.head]);
 }
 
 //Report the most recent Green value
@@ -739,17 +735,17 @@ uint16_t MAX30105::check(void)
 //Returns false if new data was not found
 bool MAX30105::safeCheck(uint8_t maxTimeToCheck)
 {
-  uint32_t markTime = HAL_GetTick();
-  while(1)
+  //uint32_t markTime = HAL_GetTick();
+  return check();
+  /*while(1)
   {
-	uint32_t delta = HAL_GetTick();
 	if(HAL_GetTick() - markTime > maxTimeToCheck) return(false);
 
 	if(check() == true) //We found new data!
 	  return(true);
 
 	//HAL_Delay(1);
-  }
+  }*/
 }
 
 //Given a register, read it, mask it, and then set the thing
