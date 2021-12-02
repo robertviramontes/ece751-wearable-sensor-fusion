@@ -40,11 +40,14 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+#define I2C_BUF_LENGTH 288 // bytes for the max number of samples we might get
+#define MAX30105_ADDRESS          (0x57 << 1) //7-bit I2C Address, shifted left once
+static const uint8_t MAX30105_FIFODATA =		0x07;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
+DMA_HandleTypeDef hdma_i2c1_rx;
 
 I2S_HandleTypeDef hi2s1;
 DMA_HandleTypeDef hdma_spi1_rx;
@@ -55,6 +58,7 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 volatile uint16_t test_array[16];
+uint8_t i2c_buf[I2C_BUF_LENGTH];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -147,8 +151,8 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
-  MX_I2C1_Init();
   MX_DMA_Init();
+  MX_I2C1_Init();
   MX_I2S1_Init();
   MX_TIM11_Init();
   /* USER CODE BEGIN 2 */
@@ -295,8 +299,12 @@ static void MX_DMA_Init(void)
 
   /* DMA controller clock enable */
   __HAL_RCC_DMA2_CLK_ENABLE();
+  __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
+  /* DMA1_Stream0_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
   /* DMA2_Stream0_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
@@ -361,24 +369,115 @@ static void MX_USART2_UART_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+volatile int numberOfSamples;
 // Callback: timer has rolled over
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   // Check which version of the timer triggered this callback and toggle LED
   if (htim == &htim11 )
   {
-	uint8_t buffer[6];
-	uint16_t ir_val = 0;
-	uint16_t red_val = 0;
-	red_val = hr_sens->getRed();
-	ir_val = hr_sens->getIR();
-	sprintf((char*)buffer,"I%d\r\n",ir_val);
-	HAL_UART_Transmit(&huart2, buffer, strlen((char*)buffer), 10);
-	sprintf((char*)buffer,"R%d\r\n",red_val);
-	HAL_UART_Transmit(&huart2, buffer, strlen((char*)buffer), 10);
-	hr_processing_terminate();
+	  //Read register FIDO_DATA in (3-byte * number of active LED) chunks
+	  //Until FIFO_RD_PTR = FIFO_WR_PTR
+	  if (hi2c1.State != HAL_I2C_STATE_READY) { return; }
+	  auto readPointer = hr_sens->getReadPointer();
+	  auto writePointer = hr_sens->getWritePointer();
+
+	  numberOfSamples = 0;
+
+	  //Do we have new data?
+	  if (readPointer != writePointer)
+	  {
+	    //Calculate the number of readings we need to get from sensor
+	    numberOfSamples = writePointer - readPointer;
+	    if (numberOfSamples < 0) numberOfSamples += 32; //Wrap condition
+
+	    //We now have the number of readings, now calc bytes to read
+	    //For this example we are just doing Red and IR (3 bytes each)
+	    int bytesLeftToRead = numberOfSamples * hr_sens->getActiveLEDs() * 3;
+
+	    //Get ready to read a burst of data from the FIFO register
+
+	    // Set the register to read from
+		auto ret = HAL_I2C_Mem_Read_DMA(&hi2c1, MAX30105_ADDRESS, MAX30105_FIFODATA, 1, i2c_buf, bytesLeftToRead);
+		ret; // for debugging
+	  }
+
+	  return; //Let the world know how much new data we found
   }
+}
+// HAL_I2C_MasterRxCpltCallback
+
+void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef * hi2c)
+{
+	uint16_t bytesLeftToRead = hi2c->XferSize;
+
+	uint8_t activeLEDs = hr_sens->getActiveLEDs();
+	int rec_buf_pos = 0; // track position in rec_buf
+	uint8_t uart_buf[32];
+
+	while (bytesLeftToRead > 0)
+	{
+		uint8_t temp[sizeof(uint32_t)]; //Array of 4 bytes that we will convert into long
+		uint32_t tempLong;
+
+
+		//Burst read three bytes - RED
+		temp[3] = 0;
+		temp[2] = i2c_buf[rec_buf_pos++];
+		temp[1] = i2c_buf[rec_buf_pos++];
+		temp[0] = i2c_buf[rec_buf_pos++];
+
+		//Convert array to long
+		memcpy(&tempLong, temp, sizeof(tempLong));
+
+		tempLong &= 0x3FFFF; //Zero out all but 18 bits
+
+		uint32_t red_val = tempLong; //Store this reading into the sense array
+		sprintf((char*)uart_buf,"RED VAL:%lu\r\n", red_val);
+		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+		// TODO add the value to the red buffer
+
+		if (activeLEDs > 1)
+		{
+		  //Burst read three more bytes - IR
+		  temp[3] = 0;
+		  temp[2] = i2c_buf[rec_buf_pos++];
+		  temp[1] = i2c_buf[rec_buf_pos++];
+		  temp[0] = i2c_buf[rec_buf_pos++];
+
+		  //Convert array to long
+		  memcpy(&tempLong, temp, sizeof(tempLong));
+
+		  tempLong &= 0x3FFFF; //Zero out all but 18 bits
+
+		  uint32_t ir_val = tempLong;
+		  sprintf((char*)uart_buf,"IR VAL:%lu\r\n", ir_val);
+		  HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+		  // TODO add the value to the ir buffer
+		}
+
+		if (activeLEDs > 2)
+		{
+		  //Burst read three more bytes - Green
+		  temp[3] = 0;
+		  temp[2] = i2c_buf[rec_buf_pos++];
+		  temp[1] = i2c_buf[rec_buf_pos++];
+		  temp[0] = i2c_buf[rec_buf_pos++];
+
+
+		  //Convert array to long
+		  memcpy(&tempLong, temp, sizeof(tempLong));
+
+		  tempLong &= 0x3FFFF; //Zero out all but 18 bits
+
+		  uint32_t green_val = tempLong;
+		  sprintf((char*)uart_buf,"GREEN VAL:%lu\r\n", green_val);
+		  HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+		}
+
+		bytesLeftToRead -= activeLEDs * 3;
+
+	} //End while (bytesLeftToRead > 0)
 }
 
 void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
