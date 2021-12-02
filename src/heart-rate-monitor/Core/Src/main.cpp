@@ -172,16 +172,6 @@ int main(void)
   uint32_t red_val = 0;
   while (1)
   {
-	//ir_val = hr_sens.getIR();
-	//red_val = hr_sens.getRed();
-	//sprintf((char*)buffer,"IR VAL:%ld \r\n",ir_val);
-	//HAL_UART_Transmit(&huart2, buffer, strlen((char*)buffer),100);
-	//sprintf((char*)buf,"RED VAL:%ld \r\n",red_val);
-	//HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 16);
-	//HAL_Delay(100);
-    /* USER CODE END WHILE */
-    /* USER CODE BEGIN 3 */
-	//hr_processing_terminate();
   }
   /* USER CODE END 3 */
 }
@@ -378,22 +368,22 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   // Check which version of the timer triggered this callback and toggle LED
   if (htim == &htim11 )
   {
-	uint8_t buffer[24];
-	uint32_t ir_val = 0;
-	uint32_t red_val = 0;
+	uint8_t buffer[6];
+	uint16_t ir_val = 0;
+	uint16_t red_val = 0;
 	red_val = hr_sens->getRed();
 	ir_val = hr_sens->getIR();
-	sprintf((char*)buffer,"IR VAL:%ld \r\n",ir_val);
+	sprintf((char*)buffer,"I%d\r\n",ir_val);
 	HAL_UART_Transmit(&huart2, buffer, strlen((char*)buffer), 10);
-	sprintf((char*)buffer,"RED VAL:%ld \r\n",red_val);
-	HAL_UART_Transmit(&huart2, buffer, strlen((char*)buffer), 1);
+	sprintf((char*)buffer,"R%d\r\n",red_val);
+	HAL_UART_Transmit(&huart2, buffer, strlen((char*)buffer), 10);
 	hr_processing_terminate();
   }
 }
 
 void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
-	uint8_t buf[32];
+	uint8_t buf[13];
 	int32_t audio1 = (int32_t)(data_in[0] << 16 | data_in[1]);
 	audio1 = audio1 >> 14;
 	int32_t audio2 = (int32_t)(data_in[4] << 16 | data_in[5]);
