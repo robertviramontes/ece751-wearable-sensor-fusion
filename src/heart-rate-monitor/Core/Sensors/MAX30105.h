@@ -105,6 +105,8 @@ class MAX30105 {
   uint8_t readRegister8(uint8_t address, uint8_t reg);
   void writeRegister8(uint8_t address, uint8_t reg, uint8_t value);
 
+  uint8_t getActiveLEDs() { return activeLEDs; }
+
  private:
   I2C_HandleTypeDef *_i2cPort;
   uint8_t _i2caddr;
