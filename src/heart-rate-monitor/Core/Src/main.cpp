@@ -43,6 +43,7 @@
 #define I2C_BUF_LENGTH 288 // bytes for the max number of samples we might get
 #define MAX30105_ADDRESS          (0x57 << 1) //7-bit I2C Address, shifted left once
 static const uint8_t MAX30105_FIFODATA =		0x07;
+#define I2S_BUF_LENGTH 512
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -59,6 +60,7 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 volatile uint16_t test_array[16];
 uint8_t i2c_buf[I2C_BUF_LENGTH];
+volatile bool get_i2c_data = false;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -74,11 +76,12 @@ void DMATransferComplete(DMA_HandleTypeDef *DmaHandle);
 static void argInit_200x1_real_T(double result[200]);
 static double argInit_real_T(void);
 static void main_hr_processing(void);
+void RequestNewPpgData();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint16_t data_in[8];
+uint16_t data_in[512];
 MAX30105 *hr_sens;
 /* Function Definitions */
 /*
@@ -162,7 +165,7 @@ int main(void)
   hr_sens->setup(0x1D, 4, 2, 400, 215, 8192);
   // Start timer
   HAL_TIM_Base_Start_IT(&htim11);
-  HAL_I2S_Receive_DMA(&hi2s1, data_in, 4);
+  HAL_I2S_Receive_DMA(&hi2s1, data_in, I2C_BUF_LENGTH/2);
   test_array[1] = 122;
   int32_t data_full;
   int32_t audio1;
@@ -176,6 +179,11 @@ int main(void)
   uint32_t red_val = 0;
   while (1)
   {
+	  if(get_i2c_data)
+	  {
+		  RequestNewPpgData();
+		  get_i2c_data = false;
+	  }
   }
   /* USER CODE END 3 */
 }
@@ -369,20 +377,50 @@ static void MX_USART2_UART_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-volatile int numberOfSamples;
+void RequestNewPpgData() {
+  //Read register FIDO_DATA in (3-byte * number of active LED) chunks
+  //Until FIFO_RD_PTR = FIFO_WR_PTR
+  auto readPointer = hr_sens->getReadPointer();
+  auto writePointer = hr_sens->getWritePointer();
+
+  int numberOfSamples = 0;
+
+  //Do we have new data?
+  if (readPointer != writePointer)
+  {
+	//Calculate the number of readings we need to get from sensor
+	numberOfSamples = writePointer - readPointer;
+	if (numberOfSamples < 0) numberOfSamples += 32; //Wrap condition
+
+	//We now have the number of readings, now calc bytes to read
+	//For this example we are just doing Red and IR (3 bytes each)
+	int bytesLeftToRead = numberOfSamples * hr_sens->getActiveLEDs() * 3;
+
+	//Get ready to read a burst of data from the FIFO register
+
+	// Set the register to read from
+	auto ret = HAL_I2C_Mem_Read_DMA(&hi2c1, MAX30105_ADDRESS, MAX30105_FIFODATA, 1, i2c_buf, bytesLeftToRead);
+	ret; // for debugging
+  }
+}
+
 // Callback: timer has rolled over
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   // Check which version of the timer triggered this callback and toggle LED
   if (htim == &htim11 )
   {
+	  if (hi2c1.State != HAL_I2C_STATE_READY || get_i2c_data) { return; }
+
+	  get_i2c_data = true;
+	  return;
 	  //Read register FIDO_DATA in (3-byte * number of active LED) chunks
 	  //Until FIFO_RD_PTR = FIFO_WR_PTR
 	  if (hi2c1.State != HAL_I2C_STATE_READY) { return; }
 	  auto readPointer = hr_sens->getReadPointer();
 	  auto writePointer = hr_sens->getWritePointer();
 
-	  numberOfSamples = 0;
+	  int numberOfSamples = 0;
 
 	  //Do we have new data?
 	  if (readPointer != writePointer)
@@ -482,13 +520,17 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef * hi2c)
 
 void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
-	uint8_t buf[13];
-	int32_t audio1 = (int32_t)(data_in[0] << 16 | data_in[1]);
-	audio1 = audio1 >> 14;
-	int32_t audio2 = (int32_t)(data_in[4] << 16 | data_in[5]);
-	audio2 = audio2 >> 14;
-	sprintf((char*)buf,"%i\r\n%i\r\n",audio1, audio2);
-	HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 1);
+	for (int i = 0; i<I2S_BUF_LENGTH;i += 4)
+	{
+		uint8_t buf[13];
+		int32_t audio1 = (int32_t)(data_in[i] << 16 | data_in[i+1]);
+		audio1 = audio1 >> 14;
+		// int32_t audio2 = (int32_t)(data_in[4] << 16 | data_in[5]);
+		// audio2 = audio2 >> 14;
+		// sprintf((char*)buf,"%i\r\n%i\r\n",audio1, audio2);
+		//sprintf((char*)buf,"%i\r\n",audio1);
+		//HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 1);
+	}
 }
 
 /**
