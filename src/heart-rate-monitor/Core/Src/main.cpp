@@ -155,7 +155,7 @@ int main(void)
   test_array[0] = 121;
   hr_sens = new MAX30105();
   hr_sens->begin(hi2c1);
-  hr_sens->setup(0x1D, 4, 2, 200, 215, 8192);
+  hr_sens->setup(0x1D, 4, 2, 400, 215, 8192);
   // Start timer
   HAL_TIM_Base_Start_IT(&htim11);
   HAL_I2S_Receive_DMA(&hi2s1, data_in, 4);
@@ -206,9 +206,9 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 16;
-  RCC_OscInitStruct.PLL.PLLN = 336;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 100;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -223,7 +223,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
   {
     Error_Handler();
   }
@@ -323,9 +323,9 @@ static void MX_TIM11_Init(void)
 
   /* USER CODE END TIM11_Init 1 */
   htim11.Instance = TIM11;
-  htim11.Init.Prescaler = 8400;
+  htim11.Init.Prescaler = 100000;
   htim11.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim11.Init.Period = 200;
+  htim11.Init.Period = 47;
   htim11.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim11.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim11) != HAL_OK)
@@ -383,8 +383,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	uint32_t red_val = 0;
 	red_val = hr_sens->getRed();
 	ir_val = hr_sens->getIR();
-	//sprintf((char*)buffer,"IR VAL:%ld \r\n",ir_val);
-	//HAL_UART_Transmit(&huart2, buffer, strlen((char*)buffer), 10);
+	sprintf((char*)buffer,"IR VAL:%ld \r\n",ir_val);
+	HAL_UART_Transmit(&huart2, buffer, strlen((char*)buffer), 10);
 	sprintf((char*)buffer,"RED VAL:%ld \r\n",red_val);
 	HAL_UART_Transmit(&huart2, buffer, strlen((char*)buffer), 1);
 	hr_processing_terminate();
