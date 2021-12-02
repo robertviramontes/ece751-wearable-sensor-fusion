@@ -1,7 +1,7 @@
 <deployment-project plugin="plugin.coder" plugin-version="R2021a">
-  <configuration build-checksum="1135080616" file="C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.prj" location="C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing" name="hr_processing" target="target.unifiedcoder" target-name="MATLAB Coder">
+  <configuration build-checksum="2591272791" file="C:\Users\asadk\OneDrive\Desktop\project\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.prj" location="C:\Users\asadk\OneDrive\Desktop\project\ece751-wearable-sensor-fusion\src\signal_processing" name="hr_processing" target="target.unifiedcoder" target-name="MATLAB Coder">
     <profile key="profile.mex">
-      <param.BuiltInstrumentedMex />
+      <param.BuiltInstrumentedMex>false</param.BuiltInstrumentedMex>
       <param.RanInstrumentedMex>false</param.RanInstrumentedMex>
       <param.WorkingFolder>option.WorkingFolder.Project</param.WorkingFolder>
       <param.SpecifiedWorkingFolder />
@@ -10,15 +10,15 @@
       <param.SearchPaths />
       <var.SimdQueryHardwareVendor>Generic</var.SimdQueryHardwareVendor>
       <var.SimdQueryHardwareType>MATLAB Host Computer</var.SimdQueryHardwareType>
-      <param.InstructionSetExtensionsAvailableInUI>false</param.InstructionSetExtensionsAvailableInUI>
+      <param.InstructionSetExtensionsAvailableInUI>true</param.InstructionSetExtensionsAvailableInUI>
       <param.InstructionSetExtensions>None</param.InstructionSetExtensions>
-      <param.ResponsivenessChecks />
-      <param.ExtrinsicCalls />
-      <param.IntegrityChecks />
+      <param.ResponsivenessChecks>true</param.ResponsivenessChecks>
+      <param.ExtrinsicCalls>true</param.ExtrinsicCalls>
+      <param.IntegrityChecks>true</param.IntegrityChecks>
       <param.SaturateOnIntegerOverflow>true</param.SaturateOnIntegerOverflow>
       <param.EnableAutoParallelization>false</param.EnableAutoParallelization>
       <param.NumberOfCpuThreads>0</param.NumberOfCpuThreads>
-      <param.GlobalDataSyncMethod />
+      <param.GlobalDataSyncMethod>option.GlobalDataSyncMethod.SyncAlways</param.GlobalDataSyncMethod>
       <param.EnableVariableSizing>true</param.EnableVariableSizing>
       <param.DynamicMemoryAllocation>option.DynamicMemoryAllocation.Threshold</param.DynamicMemoryAllocation>
       <param.DynamicMemoryAllocationThreshold>65536</param.DynamicMemoryAllocationThreshold>
@@ -34,7 +34,7 @@
       <param.CodeFormattingTool>option.CodeFormattingTool.Auto</param.CodeFormattingTool>
       <param.ReservedNameArray />
       <param.CppStyleConst>true</param.CppStyleConst>
-      <param.EnableDebugging />
+      <param.EnableDebugging>false</param.EnableDebugging>
       <param.Verbosity>option.Verbosity.Info</param.Verbosity>
       <param.ReportPotentialDifferences>false</param.ReportPotentialDifferences>
       <param.GenerateReport>true</param.GenerateReport>
@@ -55,12 +55,12 @@
       <param.CustomSource />
       <param.CustomLibrary />
       <param.PostCodeGenCommand />
-      <param.mex.GenCodeOnly />
+      <param.mex.GenCodeOnly>false</param.mex.GenCodeOnly>
       <param.ConstantFoldingTimeout>40000</param.ConstantFoldingTimeout>
       <param.CompileTimeRecursionLimit>50</param.CompileTimeRecursionLimit>
       <param.EnableRuntimeRecursion>true</param.EnableRuntimeRecursion>
       <param.PreserveVariableNames>option.PreserveVariableNames.None</param.PreserveVariableNames>
-      <param.EchoExpressions />
+      <param.EchoExpressions>true</param.EchoExpressions>
       <param.InlineThreshold>10</param.InlineThreshold>
       <param.InlineThresholdMax>200</param.InlineThresholdMax>
       <param.InlineStackLimit>1000000</param.InlineStackLimit>
@@ -71,13 +71,13 @@
       <param.MemcpyThreshold>64</param.MemcpyThreshold>
       <param.EnableOpenMP>true</param.EnableOpenMP>
       <param.InitFltsAndDblsToZero>true</param.InitFltsAndDblsToZero>
-      <param.ConstantInputs />
+      <param.ConstantInputs>option.ConstantInputs.CheckValues</param.ConstantInputs>
       <param.EnableCRICodeCoverage>true</param.EnableCRICodeCoverage>
       <param.EnableAutoParallelizationReporting>true</param.EnableAutoParallelizationReporting>
       <param.CacheDynamicArrayDataPointer>true</param.CacheDynamicArrayDataPointer>
       <param.EnableJIT>false</param.EnableJIT>
-      <param.EnableJITSilentBailOut />
-      <param.CheckForIssuesJIT />
+      <param.EnableJITSilentBailOut>false</param.EnableJITSilentBailOut>
+      <param.CheckForIssuesJIT>true</param.CheckForIssuesJIT>
       <param.EnableGitSupport>false</param.EnableGitSupport>
       <param.EnableAutoCommit>false</param.EnableAutoCommit>
       <param.RepositoryStyle>option.RepositoryStyle.Auto</param.RepositoryStyle>
@@ -171,7 +171,7 @@
       <param.SearchPaths />
       <var.SimdQueryHardwareVendor>ARM Compatible</var.SimdQueryHardwareVendor>
       <var.SimdQueryHardwareType>ARM Cortex</var.SimdQueryHardwareType>
-      <param.InstructionSetExtensionsAvailableInUI>false</param.InstructionSetExtensionsAvailableInUI>
+      <param.InstructionSetExtensionsAvailableInUI>true</param.InstructionSetExtensionsAvailableInUI>
       <param.InstructionSetExtensions>None</param.InstructionSetExtensions>
       <param.SaturateOnIntegerOverflow>true</param.SaturateOnIntegerOverflow>
       <param.PurelyIntegerCode>false</param.PurelyIntegerCode>
@@ -246,7 +246,7 @@
       <param.SILDebugging>false</param.SILDebugging>
       <param.SILPILCheckConstantInputs>true</param.SILPILCheckConstantInputs>
       <param.SILPILSyncGlobalData>true</param.SILPILSyncGlobalData>
-      <param.CodeExecutionProfiling>false</param.CodeExecutionProfiling>
+      <param.CodeExecutionProfiling>true</param.CodeExecutionProfiling>
       <param.CodeProfilingInstrumentation>false</param.CodeProfilingInstrumentation>
       <param.DefaultTestFile />
       <param.MergeInstrumentationResults>false</param.MergeInstrumentationResults>
@@ -443,7 +443,6 @@
         <param.SILDebugging />
         <param.SILPILCheckConstantInputs />
         <param.SILPILSyncGlobalData />
-        <param.CodeExecutionProfiling />
         <param.CodeProfilingInstrumentation />
         <param.DefaultTestFile />
         <param.MergeInstrumentationResults />
@@ -581,7 +580,7 @@
       <param.SearchPaths />
       <var.SimdQueryHardwareVendor>Generic</var.SimdQueryHardwareVendor>
       <var.SimdQueryHardwareType>MATLAB Host Computer</var.SimdQueryHardwareType>
-      <param.InstructionSetExtensionsAvailableInUI>false</param.InstructionSetExtensionsAvailableInUI>
+      <param.InstructionSetExtensionsAvailableInUI>true</param.InstructionSetExtensionsAvailableInUI>
       <param.InstructionSetExtensions>None</param.InstructionSetExtensions>
       <param.NumberOfCpuThreads>0</param.NumberOfCpuThreads>
       <param.hdl.MapPersistentVarsToRAM />
@@ -914,8 +913,8 @@
     <param.outputfile>${PROJECT_ROOT}\codegen\lib\hr_processing\hr_processing.lib</param.outputfile>
     <param.version>R2012a</param.version>
     <param.HasECoderFeatures>true</param.HasECoderFeatures>
-    <param.HasGpuCoder>false</param.HasGpuCoder>
-    <var.HasNeuralNetworkToolbox>false</var.HasNeuralNetworkToolbox>
+    <param.HasGpuCoder>true</param.HasGpuCoder>
+    <var.HasNeuralNetworkToolbox>true</var.HasNeuralNetworkToolbox>
     <param.mex.mainhtml />
     <param.grt.mainhtml />
     <param.CallGeneratedCodeFromTest>true</param.CallGeneratedCodeFromTest>
@@ -926,7 +925,7 @@
     <param.AutoInferUnboundedSizeThreshold>2048</param.AutoInferUnboundedSizeThreshold>
     <param.EnableFixedPointStep>false</param.EnableFixedPointStep>
     <param.EnableScreener>true</param.EnableScreener>
-    <param.AnnotationChecksum>2443883125</param.AnnotationChecksum>
+    <param.AnnotationChecksum>807398673</param.AnnotationChecksum>
     <var.LegacyTarget />
     <var.MirrorOnOpen>false</var.MirrorOnOpen>
     <param.FixedPointEnabled>false</param.FixedPointEnabled>
@@ -935,13 +934,13 @@
     <param.unifiedParamStorage />
     <var.gc.lastOutputRoot>codegen\lib\hr_processing</var.gc.lastOutputRoot>
     <var.gc.lastOutputType>C_CODE</var.gc.lastOutputType>
-    <var.gc.preBuildChecksum>1135080616</var.gc.preBuildChecksum>
+    <var.gc.preBuildChecksum>571545337</var.gc.preBuildChecksum>
     <var.cfi.lastOutputRoot>codegen\mex\hr_processing</var.cfi.lastOutputRoot>
-    <var.cfi.preBuildChecksum>2408607178</var.cfi.preBuildChecksum>
+    <var.cfi.preBuildChecksum>2117304072</var.cfi.preBuildChecksum>
     <var.lastCfiTestSnippet>hr_driver</var.lastCfiTestSnippet>
     <var.outdatedOnRestore>false</var.outdatedOnRestore>
-    <var.lastUserSourceChecksum>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;checksum&gt;&lt;includedFiles&gt;&lt;file&gt;C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.m&lt;/file&gt;&lt;/includedFiles&gt;&lt;value&gt;1710187227&lt;/value&gt;&lt;/checksum&gt;</var.lastUserSourceChecksum>
-    <var.sourceSetState>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;sourceModel&gt;&lt;primarySourceFiles&gt;&lt;file&gt;C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.m&lt;/file&gt;&lt;/primarySourceFiles&gt;&lt;fixedPointSourceFiles/&gt;&lt;fixedPointSourceRegistered&gt;false&lt;/fixedPointSourceRegistered&gt;&lt;fixedPointSourceSelected&gt;false&lt;/fixedPointSourceSelected&gt;&lt;/sourceModel&gt;</var.sourceSetState>
+    <var.lastUserSourceChecksum>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;checksum&gt;&lt;includedFiles&gt;&lt;file&gt;C:\Users\asadk\OneDrive\Desktop\project\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.m&lt;/file&gt;&lt;/includedFiles&gt;&lt;value&gt;144679633&lt;/value&gt;&lt;/checksum&gt;</var.lastUserSourceChecksum>
+    <var.sourceSetState>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;sourceModel&gt;&lt;primarySourceFiles&gt;&lt;file&gt;C:\Users\asadk\OneDrive\Desktop\project\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.m&lt;/file&gt;&lt;/primarySourceFiles&gt;&lt;fixedPointSourceFiles/&gt;&lt;fixedPointSourceRegistered&gt;false&lt;/fixedPointSourceRegistered&gt;&lt;fixedPointSourceSelected&gt;false&lt;/fixedPointSourceSelected&gt;&lt;/sourceModel&gt;</var.sourceSetState>
     <param.forceMexBuild>false</param.forceMexBuild>
     <param.NoDefaultJIT>false</param.NoDefaultJIT>
     <param.configImportActive>false</param.configImportActive>
@@ -960,9 +959,9 @@
     <param.CppPreserveClasses>true</param.CppPreserveClasses>
     <param.gpu.Enabled>false</param.gpu.Enabled>
     <param.gpu.SelectCudaDevice>-1</param.gpu.SelectCudaDevice>
-    <param.gpu.ComputeCapability />
+    <param.gpu.ComputeCapability>3.5</param.gpu.ComputeCapability>
     <param.gpu.CustomComputeCapability />
-    <param.gpu.MallocMode />
+    <param.gpu.MallocMode>discrete</param.gpu.MallocMode>
     <param.gpu.MallocThreshold>200</param.gpu.MallocThreshold>
     <param.gpu.StackLimitPerThread>1024</param.gpu.StackLimitPerThread>
     <param.gpu.MaximumBlocksPerKernel>0</param.gpu.MaximumBlocksPerKernel>
@@ -970,18 +969,18 @@
     <param.gpu.SafeBuild>false</param.gpu.SafeBuild>
     <param.gpu.KernelNamePrefix />
     <param.gpu.CompilerFlags />
-    <param.gpu.EnableCUBLAS>false</param.gpu.EnableCUBLAS>
-    <param.gpu.EnableCUSOLVER>false</param.gpu.EnableCUSOLVER>
-    <param.gpu.EnableCUFFT>false</param.gpu.EnableCUFFT>
+    <param.gpu.EnableCUBLAS>true</param.gpu.EnableCUBLAS>
+    <param.gpu.EnableCUSOLVER>true</param.gpu.EnableCUSOLVER>
+    <param.gpu.EnableCUFFT>true</param.gpu.EnableCUFFT>
     <param.gpu.EnableMemoryManager>false</param.gpu.EnableMemoryManager>
     <var.checkIssuesGpu>false</var.checkIssuesGpu>
-    <var.hasGpu>false</var.hasGpu>
+    <var.hasGpu>true</var.hasGpu>
     <var.isDeepLearningForMatlabCoderEnabled>true</var.isDeepLearningForMatlabCoderEnabled>
     <param.deeplearning.EnableDeepLearning>false</param.deeplearning.EnableDeepLearning>
     <param.deeplearning.TargetLib>option.deeplearning.targetlibrary.none</param.deeplearning.TargetLib>
     <var.cfiTargetLibSuppression>false</var.cfiTargetLibSuppression>
-    <var.hasMatlabDeepLearningSupportPackage>true</var.hasMatlabDeepLearningSupportPackage>
-    <var.hasGpuDeepLearningSupportPackage>true</var.hasGpuDeepLearningSupportPackage>
+    <var.hasMatlabDeepLearningSupportPackage>false</var.hasMatlabDeepLearningSupportPackage>
+    <var.hasGpuDeepLearningSupportPackage>false</var.hasGpuDeepLearningSupportPackage>
     <param.tensorrt.DataType>option.tensorrt.datatype.fp32</param.tensorrt.DataType>
     <param.tensorrt.DataPath />
     <param.tensorrt.NumCalibrationBatches>0</param.tensorrt.NumCalibrationBatches>
@@ -1101,8 +1100,6 @@
       <param.deeplearning.EnableDeepLearning />
       <param.deeplearning.TargetLib />
       <var.cfiTargetLibSuppression />
-      <var.hasMatlabDeepLearningSupportPackage />
-      <var.hasGpuDeepLearningSupportPackage />
       <param.tensorrt.DataType />
       <param.tensorrt.DataPath />
       <param.tensorrt.NumCalibrationBatches />
@@ -1163,7 +1160,7 @@
     </unset>
     <fileset.entrypoints>
       <file custom-data-expanded="false" value="${PROJECT_ROOT}\hr_processing.m">
-        <Marker>1638245686907</Marker>
+        <Marker>1638484381519</Marker>
       </file>
     </fileset.entrypoints>
     <fileset.testbench>
@@ -1172,8 +1169,9 @@
     <fileset.inputtypes>
       <file custom-data-expanded="false" value="${PROJECT_ROOT}\hr_processing.m">
         <Inputs fileName="hr_processing.m" functionName="hr_processing">
-          <Input Name="ppg_data" typeId="0" />
-          <Input Name="mic_data" typeId="0" />
+          <Input Name="ir_vals" typeId="0" />
+          <Input Name="red_vals" typeId="0" />
+          <Input Name="sound_vals" typeId="0" />
           <idpTable>
             <type typeId="0">
               <Class>double</Class>
@@ -1189,7 +1187,7 @@
       </file>
     </fileset.inputtypes>
     <build-deliverables>
-      <file location="${PROJECT_ROOT}\codegen\lib\hr_processing" name="hr_processing.lib" optional="false">C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\codegen\lib\hr_processing\hr_processing.lib</file>
+      <file location="${PROJECT_ROOT}\codegen\lib\hr_processing" name="hr_processing.lib" optional="false">C:\Users\asadk\OneDrive\Desktop\project\ece751-wearable-sensor-fusion\src\signal_processing\codegen\lib\hr_processing\hr_processing.lib</file>
     </build-deliverables>
     <workflow />
     <matlab>
@@ -1197,6 +1195,10 @@
       <toolboxes>
         <toolbox name="matlabcoder" />
         <toolbox name="embeddedcoder" />
+        <toolbox name="gpucoder" />
+        <toolbox name="fixedpoint" />
+        <toolbox name="matlabhdlcoder" />
+        <toolbox name="neuralnetwork" />
       </toolboxes>
       <toolbox>
         <matlabcoder>
@@ -1207,6 +1209,26 @@
         <embeddedcoder>
           <enabled>true</enabled>
         </embeddedcoder>
+      </toolbox>
+      <toolbox>
+        <gpucoder>
+          <enabled>true</enabled>
+        </gpucoder>
+      </toolbox>
+      <toolbox>
+        <fixedpoint>
+          <enabled>true</enabled>
+        </fixedpoint>
+      </toolbox>
+      <toolbox>
+        <matlabhdlcoder>
+          <enabled>true</enabled>
+        </matlabhdlcoder>
+      </toolbox>
+      <toolbox>
+        <neuralnetwork>
+          <enabled>true</enabled>
+        </neuralnetwork>
       </toolbox>
     </matlab>
     <platform>
