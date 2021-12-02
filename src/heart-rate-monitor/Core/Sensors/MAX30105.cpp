@@ -775,7 +775,8 @@ uint8_t MAX30105::readRegister8(uint8_t address, uint8_t reg) {
   auto ret = HAL_I2C_Master_Transmit(_i2cPort, address, reg_buf, 1, HAL_MAX_DELAY);
   // Read the value
   ret = HAL_I2C_Master_Receive(_i2cPort, address, rec_buf, 1, HAL_MAX_DELAY);
-  */
+*/
+
   if (ret != HAL_OK){
 	  // handle error
 	  return 0;

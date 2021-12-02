@@ -151,8 +151,8 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
-  MX_I2C1_Init();
   MX_DMA_Init();
+  MX_I2C1_Init();
   MX_I2S1_Init();
   MX_TIM11_Init();
   /* USER CODE BEGIN 2 */
@@ -333,7 +333,7 @@ static void MX_TIM11_Init(void)
   htim11.Instance = TIM11;
   htim11.Init.Prescaler = 8400;
   htim11.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim11.Init.Period = 200;
+  htim11.Init.Period = 199;
   htim11.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim11.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim11) != HAL_OK)
@@ -379,7 +379,7 @@ static void MX_USART2_UART_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+volatile int numberOfSamples;
 // Callback: timer has rolled over
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -388,11 +388,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   {
 	  //Read register FIDO_DATA in (3-byte * number of active LED) chunks
 	  //Until FIFO_RD_PTR = FIFO_WR_PTR
-
+	  if (hi2c1.State != HAL_I2C_STATE_READY) { return; }
 	  auto readPointer = hr_sens->getReadPointer();
 	  auto writePointer = hr_sens->getWritePointer();
 
-	  int numberOfSamples = 0;
+	  numberOfSamples = 0;
 
 	  //Do we have new data?
 	  if (readPointer != writePointer)
@@ -415,10 +415,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	  return; //Let the world know how much new data we found
   }
 }
+// HAL_I2C_MasterRxCpltCallback
 
-void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef * hi2c)
+void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef * hi2c)
 {
-	uint16_t bytesLeftToRead = hi2c->XferCount;
+	uint16_t bytesLeftToRead = hi2c->XferSize;
 
 	uint8_t activeLEDs = hr_sens->getActiveLEDs();
 	int rec_buf_pos = 0; // track position in rec_buf
