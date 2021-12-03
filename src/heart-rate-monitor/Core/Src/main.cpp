@@ -42,8 +42,15 @@
 /* USER CODE BEGIN PM */
 #define I2C_BUF_LENGTH 288 // bytes for the max number of samples we might get
 #define MAX30105_ADDRESS          (0x57 << 1) //7-bit I2C Address, shifted left once
-#define PPG_BUF_SIZE 50
-#define AUDIO_BUF_SIZE 1000
+static const uint8_t SAMPLE_WINDOW = 3; // seconds
+
+static const uint32_t PPG_SAMPLING_FREQUENCY = 400;
+static const uint32_t PPG_AVG_RATE = 8;
+static const uint32_t PPG_SAMPLES_PER_SECOND = PPG_SAMPLING_FREQUENCY/PPG_AVG_RATE;
+static const uint32_t AUDIO_SAMPLES_PER_SECOND = 1000;
+static const uint32_t PPG_BUF_SIZE = (PPG_SAMPLES_PER_SECOND * SAMPLE_WINDOW);
+static const uint32_t AUDIO_BUF_SIZE  = (AUDIO_SAMPLES_PER_SECOND * SAMPLE_WINDOW);
+
 #define I2S_FIFO_SIZE 1024
 static const uint8_t MAX30105_FIFODATA =		0x07;
 /* USER CODE END PM */
@@ -185,7 +192,7 @@ int main(void)
 
   hr_sens = new MAX30105();
   hr_sens->begin(hi2c1);
-  hr_sens->setup(0x1D, 8, 2, 400, 215, 8192);
+  hr_sens->setup(0x1D, PPG_AVG_RATE, 2, PPG_SAMPLING_FREQUENCY, 215, 8192);
 
   // Start timer
   HAL_TIM_Base_Start_IT(&htim11);
