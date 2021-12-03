@@ -67,7 +67,7 @@ static const uint8_t MAX30105_INT_DIE_TEMP_RDY_MASK = ~0b00000010;
 static const uint8_t MAX30105_INT_DIE_TEMP_RDY_ENABLE = 0x02;
 static const uint8_t MAX30105_INT_DIE_TEMP_RDY_DISABLE = 0x00;
 
-static const uint8_t MAX30105_SAMPLEAVG_MASK =	0b11100000;
+static const uint8_t MAX30105_SAMPLEAVG_MASK =	0x1F;
 static const uint8_t MAX30105_SAMPLEAVG_1 = 	0x00;
 static const uint8_t MAX30105_SAMPLEAVG_2 = 	0x20;
 static const uint8_t MAX30105_SAMPLEAVG_4 = 	0x40;
@@ -764,6 +764,10 @@ void MAX30105::bitMask(uint8_t reg, uint8_t mask, uint8_t thing)
 //
 // Low-level I2C Communication
 //
+uint8_t MAX30105::readRegister8(uint8_t reg) {
+	return readRegister8(_i2caddr, reg);
+}
+
 uint8_t MAX30105::readRegister8(uint8_t address, uint8_t reg) {
   uint8_t rec_buf [1]; // receive buffer
 
