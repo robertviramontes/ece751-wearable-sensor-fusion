@@ -42,6 +42,9 @@
 /* USER CODE BEGIN PM */
 #define I2C_BUF_LENGTH 288 // bytes for the max number of samples we might get
 #define MAX30105_ADDRESS          (0x57 << 1) //7-bit I2C Address, shifted left once
+#define PPG_BUF_SIZE 50
+#define AUDIO_BUF_SIZE 1000
+#define I2S_FIFO_SIZE 64
 static const uint8_t MAX30105_FIFODATA =		0x07;
 /* USER CODE END PM */
 
@@ -52,12 +55,12 @@ DMA_HandleTypeDef hdma_i2c1_rx;
 I2S_HandleTypeDef hi2s1;
 DMA_HandleTypeDef hdma_spi1_rx;
 
+TIM_HandleTypeDef htim10;
 TIM_HandleTypeDef htim11;
 
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-volatile uint16_t test_array[16];
 uint8_t i2c_buf[I2C_BUF_LENGTH];
 /* USER CODE END PV */
 
@@ -69,6 +72,7 @@ static void MX_I2S1_Init(void);
 static void MX_DMA_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM11_Init(void);
+static void MX_TIM10_Init(void);
 /* USER CODE BEGIN PFP */
 void DMATransferComplete(DMA_HandleTypeDef *DmaHandle);
 static void argInit_200x1_real_T(double result[200]);
@@ -78,8 +82,13 @@ static void main_hr_processing(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint16_t data_in[8];
+uint16_t data_in[I2S_FIFO_SIZE];
 MAX30105 *hr_sens;
+uint32_t *red_buf;
+uint32_t *ir_buf;
+int32_t *audio_buf;
+uint16_t volatile ppg_buf_index = 0;
+uint16_t volatile audio_buf_index = 0;
 /* Function Definitions */
 /*
  * Arguments    : double result[200]
@@ -155,27 +164,30 @@ int main(void)
   MX_I2C1_Init();
   MX_I2S1_Init();
   MX_TIM11_Init();
+  MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
-  test_array[0] = 121;
+  //buffers for "chunk" of data given to algo
+  red_buf = (uint32_t*)calloc(PPG_BUF_SIZE, 4);
+  ir_buf = (uint32_t*)calloc(PPG_BUF_SIZE, 4);
+  audio_buf = (int32_t*)calloc(AUDIO_BUF_SIZE, 4);
+
   hr_sens = new MAX30105();
   hr_sens->begin(hi2c1);
-  hr_sens->setup(0x1D, 4, 2, 400, 215, 8192);
+  hr_sens->setup(0x1D, 4, 2, 200, 215, 8192);
   // Start timer
   HAL_TIM_Base_Start_IT(&htim11);
-  HAL_I2S_Receive_DMA(&hi2s1, data_in, 4);
-  test_array[1] = 122;
-  int32_t data_full;
-  int32_t audio1;
-  int32_t audio2;
+  HAL_I2S_Receive_DMA(&hi2s1, data_in, I2S_FIFO_SIZE/2);
+  //HAL_TIM_Base_Start_IT(&htim10);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint8_t buffer[24];
-  uint32_t ir_val = 0;
-  uint32_t red_val = 0;
   while (1)
   {
+	  if (audio_buf_index == AUDIO_BUF_SIZE) {
+		  int i = ppg_buf_index;
+	  }
   }
   /* USER CODE END 3 */
 }
@@ -306,10 +318,42 @@ static void MX_DMA_Init(void)
   HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
   /* DMA2_Stream0_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 1, 1);
   HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
 
 }
+
+/**
+  * @brief TIM10 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM10_Init(void)
+{
+
+  /* USER CODE BEGIN TIM10_Init 0 */
+
+  /* USER CODE END TIM10_Init 0 */
+
+  /* USER CODE BEGIN TIM10_Init 1 */
+
+  /* USER CODE END TIM10_Init 1 */
+  htim10.Instance = TIM10;
+  htim10.Init.Prescaler = 100000;
+  htim10.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim10.Init.Period = 1000;
+  htim10.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim10.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim10) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM10_Init 2 */
+
+  /* USER CODE END TIM10_Init 2 */
+
+}
+
 static void MX_TIM11_Init(void)
 {
 
@@ -323,7 +367,7 @@ static void MX_TIM11_Init(void)
   htim11.Instance = TIM11;
   htim11.Init.Prescaler = 100000;
   htim11.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim11.Init.Period = 47;
+  htim11.Init.Period = 19;
   htim11.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim11.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim11) != HAL_OK)
@@ -404,93 +448,118 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 	  return; //Let the world know how much new data we found
   }
+
+  if (htim == &htim10 )
+  {
+	if (audio_buf_index == 0 || ppg_buf_index == 0) { return; }
+	uint8_t uart_buf[32];
+	HAL_I2S_DMAPause(&hi2s1);
+	HAL_TIM_Base_Stop_IT(&htim11);
+	for (int i = 0; i < AUDIO_BUF_SIZE; i += 1) {
+		sprintf((char*)uart_buf,"%li\r\n", audio_buf[i]);
+		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+	}
+	for (int i = 0; i < PPG_BUF_SIZE; i += 1) {
+		sprintf((char*)uart_buf,"RED VAL:%li\r\n", red_buf[i]);
+		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+		sprintf((char*)uart_buf,"IR VAL:%li\r\n", ir_buf[i]);
+		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+	}
+
+	audio_buf_index = 0;
+	ppg_buf_index = 0;
+	HAL_I2S_DMAResume(&hi2s1);
+	HAL_TIM_Base_Start_IT(&htim11);
+  }
+
 }
 // HAL_I2C_MasterRxCpltCallback
 
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef * hi2c)
 {
-	uint16_t bytesLeftToRead = hi2c->XferSize;
+		uint16_t bytesLeftToRead = hi2c->XferSize;
 
-	uint8_t activeLEDs = hr_sens->getActiveLEDs();
-	int rec_buf_pos = 0; // track position in rec_buf
-	uint8_t uart_buf[32];
-
-	while (bytesLeftToRead > 0)
-	{
-		uint8_t temp[sizeof(uint32_t)]; //Array of 4 bytes that we will convert into long
-		uint32_t tempLong;
-
-
-		//Burst read three bytes - RED
-		temp[3] = 0;
-		temp[2] = i2c_buf[rec_buf_pos++];
-		temp[1] = i2c_buf[rec_buf_pos++];
-		temp[0] = i2c_buf[rec_buf_pos++];
-
-		//Convert array to long
-		memcpy(&tempLong, temp, sizeof(tempLong));
-
-		tempLong &= 0x3FFFF; //Zero out all but 18 bits
-
-		uint32_t red_val = tempLong; //Store this reading into the sense array
-		sprintf((char*)uart_buf,"RED VAL:%lu\r\n", red_val);
-		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
-		// TODO add the value to the red buffer
-
-		if (activeLEDs > 1)
+		uint8_t activeLEDs = hr_sens->getActiveLEDs();
+		int rec_buf_pos = 0; // track position in rec_buf
+		uint8_t uart_buf[32];
+		while (bytesLeftToRead > 0)
 		{
-		  //Burst read three more bytes - IR
-		  temp[3] = 0;
-		  temp[2] = i2c_buf[rec_buf_pos++];
-		  temp[1] = i2c_buf[rec_buf_pos++];
-		  temp[0] = i2c_buf[rec_buf_pos++];
-
-		  //Convert array to long
-		  memcpy(&tempLong, temp, sizeof(tempLong));
-
-		  tempLong &= 0x3FFFF; //Zero out all but 18 bits
-
-		  uint32_t ir_val = tempLong;
-		  sprintf((char*)uart_buf,"IR VAL:%lu\r\n", ir_val);
-		  HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
-		  // TODO add the value to the ir buffer
-		}
-
-		if (activeLEDs > 2)
-		{
-		  //Burst read three more bytes - Green
-		  temp[3] = 0;
-		  temp[2] = i2c_buf[rec_buf_pos++];
-		  temp[1] = i2c_buf[rec_buf_pos++];
-		  temp[0] = i2c_buf[rec_buf_pos++];
+			if (ppg_buf_index >= PPG_BUF_SIZE) { return; }
+			uint8_t temp[sizeof(uint32_t)]; //Array of 4 bytes that we will convert into long
+			uint32_t tempLong;
 
 
-		  //Convert array to long
-		  memcpy(&tempLong, temp, sizeof(tempLong));
+			//Burst read three bytes - RED
+			temp[3] = 0;
+			temp[2] = i2c_buf[rec_buf_pos++];
+			temp[1] = i2c_buf[rec_buf_pos++];
+			temp[0] = i2c_buf[rec_buf_pos++];
 
-		  tempLong &= 0x3FFFF; //Zero out all but 18 bits
+			//Convert array to long
+			memcpy(&tempLong, temp, sizeof(tempLong));
 
-		  uint32_t green_val = tempLong;
-		  sprintf((char*)uart_buf,"GREEN VAL:%lu\r\n", green_val);
-		  HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
-		}
+			tempLong &= 0x3FFFF; //Zero out all but 18 bits
 
-		bytesLeftToRead -= activeLEDs * 3;
+			red_buf[ppg_buf_index] = tempLong; //Store this reading into the sense array
+			//sprintf((char*)uart_buf,"RED VAL:%lu\r\n", red_val);
+			//HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+			// TODO add the value to the red buffer
 
-	} //End while (bytesLeftToRead > 0)
+			if (activeLEDs > 1)
+			{
+			  //Burst read three more bytes - IR
+			  temp[3] = 0;
+			  temp[2] = i2c_buf[rec_buf_pos++];
+			  temp[1] = i2c_buf[rec_buf_pos++];
+			  temp[0] = i2c_buf[rec_buf_pos++];
+
+			  //Convert array to long
+			  memcpy(&tempLong, temp, sizeof(tempLong));
+
+			  tempLong &= 0x3FFFF; //Zero out all but 18 bits
+
+			  ir_buf[ppg_buf_index] = tempLong;
+			  //sprintf((char*)uart_buf,"IR VAL:%lu\r\n", ir_val);
+			  //HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+			  // TODO add the value to the ir buffer
+			}
+
+			if (activeLEDs > 2)
+			{
+			  //Burst read three more bytes - Green
+			  temp[3] = 0;
+			  temp[2] = i2c_buf[rec_buf_pos++];
+			  temp[1] = i2c_buf[rec_buf_pos++];
+			  temp[0] = i2c_buf[rec_buf_pos++];
+
+
+			  //Convert array to long
+			  memcpy(&tempLong, temp, sizeof(tempLong));
+
+			  tempLong &= 0x3FFFF; //Zero out all but 18 bits
+
+			  uint32_t green_val = tempLong;
+			  //sprintf((char*)uart_buf,"GREEN VAL:%lu\r\n", green_val);
+			  //HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+			}
+			ppg_buf_index++;
+			bytesLeftToRead -= activeLEDs * 3;
+
+		} //End while (bytesLeftToRead > 0)
 }
 
 void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
-	uint8_t buf[13];
-	int32_t audio1 = (int32_t)(data_in[0] << 16 | data_in[1]);
-	audio1 = audio1 >> 14;
-	int32_t audio2 = (int32_t)(data_in[4] << 16 | data_in[5]);
-	audio2 = audio2 >> 14;
-	sprintf((char*)buf,"%i\r\n%i\r\n",audio1, audio2);
-	HAL_UART_Transmit(&huart2, buf, strlen((char*)buf), 1);
+	if (audio_buf_index < AUDIO_BUF_SIZE) {
+		int32_t audio1 = (int32_t)(data_in[0] << 16 | data_in[1]);
+		audio1 = audio1 >> 14;
+		audio_buf[audio_buf_index] = audio1;
+		audio_buf_index++;
+	}
+	else {
+		int i = ppg_buf_index;
+	}
 }
-
 /**
   * @brief GPIO Initialization Function
   * @param None
