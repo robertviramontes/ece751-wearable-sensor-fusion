@@ -204,7 +204,6 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  int trips = 0;
   while (1)
   {
 	  if (ppg_buf_index >= PPG_BUF_SIZE) {
