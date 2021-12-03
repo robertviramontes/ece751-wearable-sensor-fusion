@@ -185,7 +185,7 @@ int main(void)
 
   hr_sens = new MAX30105();
   hr_sens->begin(hi2c1);
-  hr_sens->setup(0x1D, 4, 2, 200, 215, 8192);
+  hr_sens->setup(0x1D, 8, 2, 400, 215, 8192);
 
   // Start timer
   HAL_TIM_Base_Start_IT(&htim11);
@@ -592,7 +592,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef * hi2c)
 
 void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
-	const uint8_t samplesToSkip = 16; // only pick 1 of 16 samples
+	const uint8_t samplesToSkip = 32; // only pick 1 of 16 samples
 	const uint8_t bytesBetweenSamples = 4; // each sample is 2 bytes, have L and R in buffer but only want L
 	for (uint16_t i = 0; i < I2S_FIFO_SIZE; i += (samplesToSkip*bytesBetweenSamples))
 	{
@@ -602,11 +602,7 @@ void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 		// Parse the audio data
 		int32_t audio1 = (int32_t)(data_in[i] << 16 | data_in[i+1]);
 		audio1 = audio1 >> 14;
-		if(audio1 == 0)
-		{
-			int help = 0;
-			help++;
-		}
+
 		// Add to buffer and increment
 		audio_buf[audio_buf_index] = audio1;
 		audio_buf_index++;
