@@ -69,7 +69,14 @@ uint32_t *ir_buf;
 int32_t *audio_buf;
 uint16_t volatile ppg_buf_index = 0;
 uint16_t volatile audio_buf_index = 0;
+// Signal from timer that we should queue an I2C transfer from PPG
 bool volatile queueI2cTransfer = false;
+// Signal to timer that I2C transfer complete, OK to start
+// requesting data again.
+bool volatile waitingForI2c = false;
+
+uint32_t volatile start_tick;
+uint32_t volatile end_tick;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -179,11 +186,12 @@ int main(void)
   hr_sens = new MAX30105();
   hr_sens->begin(hi2c1);
   hr_sens->setup(0x1D, 4, 2, 200, 215, 8192);
+
   // Start timer
   HAL_TIM_Base_Start_IT(&htim11);
   HAL_I2S_Receive_DMA(&hi2s1, data_in, I2S_FIFO_SIZE/2);
   // TODO RV: Remove?
-  HAL_TIM_Base_Start_IT(&htim10);
+  // HAL_TIM_Base_Start_IT(&htim10);
 
   /* USER CODE END 2 */
 
@@ -192,15 +200,16 @@ int main(void)
   int trips = 0;
   while (1)
   {
-//	  if (audio_buf_index >= AUDIO_BUF_SIZE) {
-//		  ProcessData();
-//	  }
+	  if (ppg_buf_index >= PPG_BUF_SIZE) {
+		  ProcessData();
+	  }
 
 	  if (queueI2cTransfer)
 	  {
 		  // Gets the head and tail pointers
 		  // then schedules a nonblocking transfer of data
 		  StartPpgRequest();
+		  queueI2cTransfer = false;
 	  }
   }
   /* USER CODE END 3 */
@@ -453,6 +462,7 @@ void StartPpgRequest()
 	    // Set the register to read from
 		auto ret = HAL_I2C_Mem_Read_DMA(&hi2c1, MAX30105_ADDRESS, MAX30105_FIFODATA, 1, i2c_buf, bytesLeftToRead);
 		ret; // for debugging
+		waitingForI2c = true;
 	  }
 
 	  return; //Let the world know how much new data we found
@@ -462,7 +472,7 @@ void StartPpgRequest()
 // gloabl buffers.
 void ProcessData()
 {
-	if (audio_buf_index == 0 || ppg_buf_index == 0) { return; }
+//	if (audio_buf_index == 0 || ppg_buf_index == 0) { return; }
 	uint8_t uart_buf[32];
 
 	// Capture the indices before outside forces can change them
@@ -499,7 +509,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if (htim == &htim11 )
   {
 	  // if the i2c bus is still busy, don't queue another transfer
-	  if (hi2c1.State != HAL_I2C_STATE_READY || queueI2cTransfer) { return; }
+	  if (hi2c1.State != HAL_I2C_STATE_READY || queueI2cTransfer || waitingForI2c) { return; }
 	  // Set this true to tell the main while loop that the timer has elapsed to
 	  // look for new samples on I2C.
 	  queueI2cTransfer = true;
@@ -577,7 +587,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef * hi2c)
 
 	} //End while (bytesLeftToRead > 0)
 	// Ready to queue another transfer
-	queueI2cTransfer = false;
+	waitingForI2c = false;
 }
 
 void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
