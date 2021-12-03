@@ -183,7 +183,7 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim11);
   HAL_I2S_Receive_DMA(&hi2s1, data_in, I2S_FIFO_SIZE/2);
   // TODO RV: Remove?
-  // HAL_TIM_Base_Start_IT(&htim10);
+  HAL_TIM_Base_Start_IT(&htim10);
 
   /* USER CODE END 2 */
 
@@ -192,9 +192,9 @@ int main(void)
   int trips = 0;
   while (1)
   {
-	  if (audio_buf_index >= AUDIO_BUF_SIZE) {
-		  ProcessData();
-	  }
+//	  if (audio_buf_index >= AUDIO_BUF_SIZE) {
+//		  ProcessData();
+//	  }
 
 	  if (queueI2cTransfer)
 	  {
@@ -329,7 +329,7 @@ static void MX_DMA_Init(void)
 
   /* DMA interrupt init */
   /* DMA1_Stream0_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 1, 2);
   HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
   /* DMA2_Stream0_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 1, 1);
@@ -465,16 +465,20 @@ void ProcessData()
 	if (audio_buf_index == 0 || ppg_buf_index == 0) { return; }
 	uint8_t uart_buf[32];
 
+	// Capture the indices before outside forces can change them
+	auto local_audio_idx = audio_buf_index;
+	auto local_ppg_idx = ppg_buf_index;
+
 	// Disable the data collection interrupts
 	HAL_I2S_DMAStop(&hi2s1);
 	HAL_TIM_Base_Stop_IT(&htim11);
 	// Log to console all the updated audio values
-	for (int i = 0; i < audio_buf_index; i += 1) {
+	for (int i = 0; i < local_audio_idx; i += 1) {
 		sprintf((char*)uart_buf,"%li\r\n", audio_buf[i]);
 		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
 	}
 	// Log to console all the updated ppg values
-	for (int i = 0; i < ppg_buf_index; i += 1) {
+	for (int i = 0; i < local_ppg_idx; i += 1) {
 		sprintf((char*)uart_buf,"RED VAL:%li\r\n", red_buf[i]);
 		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
 		sprintf((char*)uart_buf,"IR VAL:%li\r\n", ir_buf[i]);
