@@ -413,7 +413,6 @@ static void MX_USART2_UART_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-volatile int numberOfSamples;
 // Callback: timer has rolled over
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -426,7 +425,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	  auto readPointer = hr_sens->getReadPointer();
 	  auto writePointer = hr_sens->getWritePointer();
 
-	  numberOfSamples = 0;
+	  int numberOfSamples = 0;
 
 	  //Do we have new data?
 	  if (readPointer != writePointer)
