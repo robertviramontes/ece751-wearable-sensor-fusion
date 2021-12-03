@@ -38,8 +38,10 @@ function [heartbeat] = hr_processing(ir_vals, red_vals, sound_vals)
             break
         end
     end
-    
+    a
+    b
     chunk_f = f(1, a:b)
+    P1 = P1';
     chunk_p1 = P1(1, a:b)
     %plot(chunk_f, chunk_p1)
     [max_p1, idx_p1] = max(chunk_p1)
@@ -64,6 +66,7 @@ function [heartbeat] = hr_processing(ir_vals, red_vals, sound_vals)
     end
     
     chunk_f2 = f2(1, a:b);
+    P12 = P12';
     chunk_p12 = P12(1, a:b);
     %plot(chunk_f2, chunk_p12)
     [max_p12, idx_p12] = max(chunk_p12)
@@ -73,3 +76,4 @@ function [heartbeat] = hr_processing(ir_vals, red_vals, sound_vals)
     heartbeat = 0.4*hrtbeat_ppg + 0.3*hrtbeat_sound
 
 end
+
