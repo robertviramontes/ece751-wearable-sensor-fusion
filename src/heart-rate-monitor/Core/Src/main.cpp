@@ -486,8 +486,8 @@ void ProcessData()
 	auto local_ppg_idx = ppg_buf_index;
 
 	// Disable the data collection interrupts
-	HAL_I2S_DMAStop(&hi2s1);
-	HAL_TIM_Base_Stop_IT(&htim11);
+	// HAL_I2S_DMAStop(&hi2s1);
+	// HAL_TIM_Base_Stop_IT(&htim11);
 	// Log to console all the updated audio values
 	for (int i = 0; i < local_audio_idx; i += 1) {
 		sprintf((char*)uart_buf,"%li\r\n", audio_buf[i]);
@@ -504,8 +504,8 @@ void ProcessData()
 	// Reset the indices and re-enable the data collect interrupts
 	audio_buf_index = 0;
 	ppg_buf_index = 0;
-	HAL_I2S_Receive_DMA(&hi2s1, data_in, I2S_FIFO_SIZE/2);
-	HAL_TIM_Base_Start_IT(&htim11);
+	// HAL_I2S_Receive_DMA(&hi2s1, data_in, I2S_FIFO_SIZE/2);
+	// HAL_TIM_Base_Start_IT(&htim11);
 }
 
 // Callback: timer has rolled over

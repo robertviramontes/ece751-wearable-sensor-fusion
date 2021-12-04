@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.coder" plugin-version="R2021a">
-  <configuration build-checksum="2591272791" file="C:\Users\asadk\OneDrive\Desktop\project\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.prj" location="C:\Users\asadk\OneDrive\Desktop\project\ece751-wearable-sensor-fusion\src\signal_processing" name="hr_processing" target="target.unifiedcoder" target-name="MATLAB Coder">
+  <configuration build-checksum="1068203092" file="C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.prj" location="C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing" name="hr_processing" target="target.unifiedcoder" target-name="MATLAB Coder">
     <profile key="profile.mex">
       <param.BuiltInstrumentedMex>false</param.BuiltInstrumentedMex>
       <param.RanInstrumentedMex>false</param.RanInstrumentedMex>
@@ -913,8 +913,8 @@
     <param.outputfile>${PROJECT_ROOT}\codegen\lib\hr_processing\hr_processing.lib</param.outputfile>
     <param.version>R2012a</param.version>
     <param.HasECoderFeatures>true</param.HasECoderFeatures>
-    <param.HasGpuCoder>true</param.HasGpuCoder>
-    <var.HasNeuralNetworkToolbox>true</var.HasNeuralNetworkToolbox>
+    <param.HasGpuCoder>false</param.HasGpuCoder>
+    <var.HasNeuralNetworkToolbox>false</var.HasNeuralNetworkToolbox>
     <param.mex.mainhtml />
     <param.grt.mainhtml />
     <param.CallGeneratedCodeFromTest>true</param.CallGeneratedCodeFromTest>
@@ -925,7 +925,7 @@
     <param.AutoInferUnboundedSizeThreshold>2048</param.AutoInferUnboundedSizeThreshold>
     <param.EnableFixedPointStep>false</param.EnableFixedPointStep>
     <param.EnableScreener>true</param.EnableScreener>
-    <param.AnnotationChecksum>807398673</param.AnnotationChecksum>
+    <param.AnnotationChecksum>426768077</param.AnnotationChecksum>
     <var.LegacyTarget />
     <var.MirrorOnOpen>false</var.MirrorOnOpen>
     <param.FixedPointEnabled>false</param.FixedPointEnabled>
@@ -934,13 +934,13 @@
     <param.unifiedParamStorage />
     <var.gc.lastOutputRoot>codegen\lib\hr_processing</var.gc.lastOutputRoot>
     <var.gc.lastOutputType>C_CODE</var.gc.lastOutputType>
-    <var.gc.preBuildChecksum>571545337</var.gc.preBuildChecksum>
+    <var.gc.preBuildChecksum>3943659812</var.gc.preBuildChecksum>
     <var.cfi.lastOutputRoot>codegen\mex\hr_processing</var.cfi.lastOutputRoot>
-    <var.cfi.preBuildChecksum>2117304072</var.cfi.preBuildChecksum>
+    <var.cfi.preBuildChecksum>3952470439</var.cfi.preBuildChecksum>
     <var.lastCfiTestSnippet>hr_driver</var.lastCfiTestSnippet>
     <var.outdatedOnRestore>false</var.outdatedOnRestore>
-    <var.lastUserSourceChecksum>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;checksum&gt;&lt;includedFiles&gt;&lt;file&gt;C:\Users\asadk\OneDrive\Desktop\project\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.m&lt;/file&gt;&lt;/includedFiles&gt;&lt;value&gt;144679633&lt;/value&gt;&lt;/checksum&gt;</var.lastUserSourceChecksum>
-    <var.sourceSetState>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;sourceModel&gt;&lt;primarySourceFiles&gt;&lt;file&gt;C:\Users\asadk\OneDrive\Desktop\project\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.m&lt;/file&gt;&lt;/primarySourceFiles&gt;&lt;fixedPointSourceFiles/&gt;&lt;fixedPointSourceRegistered&gt;false&lt;/fixedPointSourceRegistered&gt;&lt;fixedPointSourceSelected&gt;false&lt;/fixedPointSourceSelected&gt;&lt;/sourceModel&gt;</var.sourceSetState>
+    <var.lastUserSourceChecksum>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;checksum&gt;&lt;includedFiles&gt;&lt;file&gt;C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.m&lt;/file&gt;&lt;/includedFiles&gt;&lt;value&gt;3000214794&lt;/value&gt;&lt;/checksum&gt;</var.lastUserSourceChecksum>
+    <var.sourceSetState>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;sourceModel&gt;&lt;primarySourceFiles&gt;&lt;file&gt;C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.m&lt;/file&gt;&lt;/primarySourceFiles&gt;&lt;fixedPointSourceFiles/&gt;&lt;fixedPointSourceRegistered&gt;false&lt;/fixedPointSourceRegistered&gt;&lt;fixedPointSourceSelected&gt;false&lt;/fixedPointSourceSelected&gt;&lt;/sourceModel&gt;</var.sourceSetState>
     <param.forceMexBuild>false</param.forceMexBuild>
     <param.NoDefaultJIT>false</param.NoDefaultJIT>
     <param.configImportActive>false</param.configImportActive>
@@ -959,9 +959,9 @@
     <param.CppPreserveClasses>true</param.CppPreserveClasses>
     <param.gpu.Enabled>false</param.gpu.Enabled>
     <param.gpu.SelectCudaDevice>-1</param.gpu.SelectCudaDevice>
-    <param.gpu.ComputeCapability>3.5</param.gpu.ComputeCapability>
+    <param.gpu.ComputeCapability />
     <param.gpu.CustomComputeCapability />
-    <param.gpu.MallocMode>discrete</param.gpu.MallocMode>
+    <param.gpu.MallocMode />
     <param.gpu.MallocThreshold>200</param.gpu.MallocThreshold>
     <param.gpu.StackLimitPerThread>1024</param.gpu.StackLimitPerThread>
     <param.gpu.MaximumBlocksPerKernel>0</param.gpu.MaximumBlocksPerKernel>
@@ -969,12 +969,12 @@
     <param.gpu.SafeBuild>false</param.gpu.SafeBuild>
     <param.gpu.KernelNamePrefix />
     <param.gpu.CompilerFlags />
-    <param.gpu.EnableCUBLAS>true</param.gpu.EnableCUBLAS>
-    <param.gpu.EnableCUSOLVER>true</param.gpu.EnableCUSOLVER>
-    <param.gpu.EnableCUFFT>true</param.gpu.EnableCUFFT>
+    <param.gpu.EnableCUBLAS>false</param.gpu.EnableCUBLAS>
+    <param.gpu.EnableCUSOLVER>false</param.gpu.EnableCUSOLVER>
+    <param.gpu.EnableCUFFT>false</param.gpu.EnableCUFFT>
     <param.gpu.EnableMemoryManager>false</param.gpu.EnableMemoryManager>
     <var.checkIssuesGpu>false</var.checkIssuesGpu>
-    <var.hasGpu>true</var.hasGpu>
+    <var.hasGpu>false</var.hasGpu>
     <var.isDeepLearningForMatlabCoderEnabled>true</var.isDeepLearningForMatlabCoderEnabled>
     <param.deeplearning.EnableDeepLearning>false</param.deeplearning.EnableDeepLearning>
     <param.deeplearning.TargetLib>option.deeplearning.targetlibrary.none</param.deeplearning.TargetLib>
@@ -1160,7 +1160,7 @@
     </unset>
     <fileset.entrypoints>
       <file custom-data-expanded="false" value="${PROJECT_ROOT}\hr_processing.m">
-        <Marker>1638484381519</Marker>
+        <Marker>1638655831628</Marker>
       </file>
     </fileset.entrypoints>
     <fileset.testbench>
@@ -1170,12 +1170,36 @@
       <file custom-data-expanded="false" value="${PROJECT_ROOT}\hr_processing.m">
         <Inputs fileName="hr_processing.m" functionName="hr_processing">
           <Input Name="ir_vals" typeId="0" />
+          <Input Name="ir_length" typeId="1" />
           <Input Name="red_vals" typeId="0" />
-          <Input Name="sound_vals" typeId="0" />
+          <Input Name="red_length" typeId="1" />
+          <Input Name="sound_vals" typeId="2" />
+          <Input Name="sound_length" typeId="1" />
+          <Input Name="Fs_ppg" typeId="1" />
+          <Input Name="Fs_sound" typeId="1" />
+          <Input Name="previous_bpm" typeId="1" />
           <idpTable>
             <type typeId="0">
               <Class>double</Class>
-              <Size>200 x 1</Size>
+              <Size>:450 x 1</Size>
+              <Value />
+              <InitialValue />
+              <UserDefined>false</UserDefined>
+              <Complex>false</Complex>
+              <Sparse>false</Sparse>
+            </type>
+            <type typeId="1">
+              <Class>double</Class>
+              <Size>1 x 1</Size>
+              <Value />
+              <InitialValue />
+              <UserDefined>false</UserDefined>
+              <Complex>false</Complex>
+              <Sparse>false</Sparse>
+            </type>
+            <type typeId="2">
+              <Class>double</Class>
+              <Size>:9000 x 1</Size>
               <Value />
               <InitialValue />
               <UserDefined>false</UserDefined>
@@ -1187,7 +1211,7 @@
       </file>
     </fileset.inputtypes>
     <build-deliverables>
-      <file location="${PROJECT_ROOT}\codegen\lib\hr_processing" name="hr_processing.lib" optional="false">C:\Users\asadk\OneDrive\Desktop\project\ece751-wearable-sensor-fusion\src\signal_processing\codegen\lib\hr_processing\hr_processing.lib</file>
+      <file location="${PROJECT_ROOT}\codegen\lib\hr_processing" name="hr_processing.lib" optional="false">C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\codegen\lib\hr_processing\hr_processing.lib</file>
     </build-deliverables>
     <workflow />
     <matlab>
@@ -1195,10 +1219,6 @@
       <toolboxes>
         <toolbox name="matlabcoder" />
         <toolbox name="embeddedcoder" />
-        <toolbox name="gpucoder" />
-        <toolbox name="fixedpoint" />
-        <toolbox name="matlabhdlcoder" />
-        <toolbox name="neuralnetwork" />
       </toolboxes>
       <toolbox>
         <matlabcoder>
@@ -1209,26 +1229,6 @@
         <embeddedcoder>
           <enabled>true</enabled>
         </embeddedcoder>
-      </toolbox>
-      <toolbox>
-        <gpucoder>
-          <enabled>true</enabled>
-        </gpucoder>
-      </toolbox>
-      <toolbox>
-        <fixedpoint>
-          <enabled>true</enabled>
-        </fixedpoint>
-      </toolbox>
-      <toolbox>
-        <matlabhdlcoder>
-          <enabled>true</enabled>
-        </matlabhdlcoder>
-      </toolbox>
-      <toolbox>
-        <neuralnetwork>
-          <enabled>true</enabled>
-        </neuralnetwork>
       </toolbox>
     </matlab>
     <platform>
