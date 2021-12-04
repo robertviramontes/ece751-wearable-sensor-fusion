@@ -5,7 +5,7 @@
  * File: hr_processing_emxutil.h
  *
  * MATLAB Coder version            : 5.3
- * C/C++ source code generated on  : 04-Dec-2021 16:28:53
+ * C/C++ source code generated on  : 04-Dec-2021 17:22:10
  */
 
 #ifndef HR_PROCESSING_EMXUTIL_H
@@ -22,17 +22,11 @@ extern "C" {
 #endif
 
 /* Function Declarations */
-extern void emxEnsureCapacity_creal_T(emxArray_creal_T *emxArray, int oldNumel);
-
 extern void emxEnsureCapacity_real_T(emxArray_real_T *emxArray, int oldNumel);
-
-extern void emxFree_creal_T(emxArray_creal_T **pEmxArray);
 
 extern void emxFree_real_T(emxArray_real_T **pEmxArray);
 
-extern void emxInit_creal_T(emxArray_creal_T **pEmxArray);
-
-extern void emxInit_real_T(emxArray_real_T **pEmxArray, int numDimensions);
+extern void emxInit_real_T(emxArray_real_T **pEmxArray);
 
 #ifdef __cplusplus
 }

@@ -44,7 +44,7 @@
       <param.DefaultTestFile />
       <param.MergeInstrumentationResults>false</param.MergeInstrumentationResults>
       <param.VerificationMode>option.VerificationMode.None</param.VerificationMode>
-      <param.VerificationStatus>option.VerificationStatus.Passed</param.VerificationStatus>
+      <param.VerificationStatus>option.VerificationStatus.FailedTest</param.VerificationStatus>
       <param.EnableMexProfiling>false</param.EnableMexProfiling>
       <var.BuiltWithMexProfiling>false</var.BuiltWithMexProfiling>
       <param.CustomSourceCode />
@@ -252,7 +252,7 @@
       <param.MergeInstrumentationResults>false</param.MergeInstrumentationResults>
       <param.RanPilSilVerification>false</param.RanPilSilVerification>
       <param.VerificationMode>option.VerificationMode.None</param.VerificationMode>
-      <param.VerificationStatus>option.VerificationStatus.Inactive</param.VerificationStatus>
+      <param.VerificationStatus>option.VerificationStatus.FailedTest</param.VerificationStatus>
       <param.CustomSourceCode />
       <param.CustomHeaderCode />
       <param.CustomInitializer />
@@ -448,7 +448,6 @@
         <param.MergeInstrumentationResults />
         <param.RanPilSilVerification />
         <param.VerificationMode />
-        <param.VerificationStatus />
         <param.CustomSourceCode />
         <param.CustomHeaderCode />
         <param.CustomInitializer />
@@ -925,7 +924,7 @@
     <param.AutoInferUnboundedSizeThreshold>2048</param.AutoInferUnboundedSizeThreshold>
     <param.EnableFixedPointStep>false</param.EnableFixedPointStep>
     <param.EnableScreener>true</param.EnableScreener>
-    <param.AnnotationChecksum>149324747</param.AnnotationChecksum>
+    <param.AnnotationChecksum>2710377343</param.AnnotationChecksum>
     <var.LegacyTarget />
     <var.MirrorOnOpen>false</var.MirrorOnOpen>
     <param.FixedPointEnabled>false</param.FixedPointEnabled>
@@ -934,9 +933,9 @@
     <param.unifiedParamStorage />
     <var.gc.lastOutputRoot>codegen\lib\hr_processing</var.gc.lastOutputRoot>
     <var.gc.lastOutputType>C_CODE</var.gc.lastOutputType>
-    <var.gc.preBuildChecksum>347811968</var.gc.preBuildChecksum>
-    <var.cfi.lastOutputRoot>codegen\mex\hr_processing</var.cfi.lastOutputRoot>
-    <var.cfi.preBuildChecksum>337747971</var.cfi.preBuildChecksum>
+    <var.gc.preBuildChecksum>3223270896</var.gc.preBuildChecksum>
+    <var.cfi.lastOutputRoot>codegen\lib\hr_processing</var.cfi.lastOutputRoot>
+    <var.cfi.preBuildChecksum>3223270896</var.cfi.preBuildChecksum>
     <var.lastCfiTestSnippet>hr_driver</var.lastCfiTestSnippet>
     <var.outdatedOnRestore>false</var.outdatedOnRestore>
     <var.lastUserSourceChecksum>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;checksum&gt;&lt;includedFiles&gt;&lt;file&gt;C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.m&lt;/file&gt;&lt;/includedFiles&gt;&lt;value&gt;2868637950&lt;/value&gt;&lt;/checksum&gt;</var.lastUserSourceChecksum>
@@ -1160,7 +1159,7 @@
     </unset>
     <fileset.entrypoints>
       <file custom-data-expanded="false" value="${PROJECT_ROOT}\hr_processing.m">
-        <Marker>1638656863437</Marker>
+        <Marker>1638660074738</Marker>
       </file>
     </fileset.entrypoints>
     <fileset.testbench>
@@ -1177,34 +1176,40 @@
           <Input Name="sound_length" typeId="1" />
           <Input Name="Fs_ppg" typeId="1" />
           <Input Name="Fs_sound" typeId="1" />
-          <Input Name="previous_bpm" typeId="1" />
+          <Input Name="previous_bpm" typeId="3" />
           <idpTable>
             <type typeId="0">
-              <Class>double</Class>
-              <Size>:500 x 1</Size>
+              <Class>uint32</Class>
+              <Size>250 x 1</Size>
               <Value />
               <InitialValue />
-              <UserDefined>false</UserDefined>
+              <UserDefined>true</UserDefined>
               <Complex>false</Complex>
-              <Sparse>false</Sparse>
             </type>
             <type typeId="1">
               <Class>double</Class>
               <Size>1 x 1</Size>
               <Value />
               <InitialValue />
-              <UserDefined>false</UserDefined>
+              <UserDefined>true</UserDefined>
               <Complex>false</Complex>
               <Sparse>false</Sparse>
             </type>
             <type typeId="2">
-              <Class>double</Class>
-              <Size>:10000 x 1</Size>
+              <Class>int32</Class>
+              <Size>1250 x 1</Size>
               <Value />
               <InitialValue />
-              <UserDefined>false</UserDefined>
+              <UserDefined>true</UserDefined>
               <Complex>false</Complex>
-              <Sparse>false</Sparse>
+            </type>
+            <type typeId="3">
+              <Class>uint16</Class>
+              <Size>1 x 1</Size>
+              <Value />
+              <InitialValue />
+              <UserDefined>true</UserDefined>
+              <Complex>false</Complex>
             </type>
           </idpTable>
         </Inputs>

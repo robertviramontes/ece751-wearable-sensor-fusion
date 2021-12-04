@@ -27,6 +27,7 @@
 #include <stdio.h>
 
 #include "hr_processing.h"
+#include "rt_nonfinite.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -71,9 +72,9 @@ UART_HandleTypeDef huart2;
 uint8_t i2c_buf[I2C_BUF_LENGTH];
 uint16_t data_in[I2S_FIFO_SIZE];
 MAX30105 *hr_sens;
-uint32_t *red_buf;
-uint32_t *ir_buf;
-int32_t *audio_buf;
+uint32_T *red_buf;
+uint32_T *ir_buf;
+int32_T *audio_buf;
 uint16_t volatile ppg_buf_index = 0;
 uint16_t volatile audio_buf_index = 0;
 // Signal from timer that we should queue an I2C transfer from PPG
@@ -98,30 +99,58 @@ static void MX_TIM10_Init(void);
 /* USER CODE BEGIN PFP */
 
 void DMATransferComplete(DMA_HandleTypeDef *DmaHandle);
-static void argInit_200x1_real_T(double result[200]);
-static double argInit_real_T(void);
-static void main_hr_processing(void);
 void StartPpgRequest();
 void ProcessData();
 
-/* USER CODE END PFP */
+/* Function Declarations */
+static void argInit_10000x1_int32_T(int result[10000]);
+static void argInit_500x1_uint32_T(unsigned int result[500]);
+static void argInit_d500x1_uint32_T(unsigned int result_data[],
+                                    int *result_size);
+static int argInit_int32_T(void);
+static double argInit_real_T(void);
+static unsigned short argInit_uint16_T(void);
+static unsigned int argInit_uint32_T(void);
+static void main_hr_processing(void);
 
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
 /* Function Definitions */
 /*
- * Arguments    : double result[200]
+ * Arguments    : int result[1250]
  * Return Type  : void
  */
-static void argInit_200x1_real_T(double result[200])
+static void argInit_1250x1_int32_T(int result[1250])
 {
   int idx0;
   /* Loop over the array to initialize each element. */
-  for (idx0 = 0; idx0 < 200; idx0++) {
+  for (idx0 = 0; idx0 < 1250; idx0++) {
     /* Set the value of the array element.
 Change this value to the value that the application requires. */
-    result[idx0] = argInit_real_T();
+    result[idx0] = argInit_int32_T();
   }
+}
+
+/*
+ * Arguments    : unsigned int result[250]
+ * Return Type  : void
+ */
+static void argInit_250x1_uint32_T(unsigned int result[250])
+{
+  int idx0;
+  /* Loop over the array to initialize each element. */
+  for (idx0 = 0; idx0 < 250; idx0++) {
+    /* Set the value of the array element.
+Change this value to the value that the application requires. */
+    result[idx0] = argInit_uint32_T();
+  }
+}
+
+/*
+ * Arguments    : void
+ * Return Type  : int
+ */
+static int argInit_int32_T(void)
+{
+  return 0;
 }
 
 /*
@@ -135,19 +164,35 @@ static double argInit_real_T(void)
 
 /*
  * Arguments    : void
+ * Return Type  : unsigned short
+ */
+static unsigned short argInit_uint16_T(void)
+{
+  return 0U;
+}
+
+/*
+ * Arguments    : void
+ * Return Type  : unsigned int
+ */
+static unsigned int argInit_uint32_T(void)
+{
+  return 0U;
+}
+
+/*
+ * Arguments    : void
  * Return Type  : void
  */
 static void main_hr_processing(void)
 {
-  double ppg_data_tmp[200];
-  double heart_rate;
-  /* Initialize function 'hr_processing' input arguments. */
-  /* Initialize function input argument 'ppg_data'. */
-  argInit_200x1_real_T(ppg_data_tmp);
-  /* Initialize function input argument 'mic_data'. */
-  /* Call the entry-point 'hr_processing'. */
-  heart_rate = hr_processing(ppg_data_tmp, ppg_data_tmp);
+  static short heartbeat;
+  heartbeat = hr_processing(ir_buf, PPG_BUF_SIZE,
+		  	  	  	  	  	red_buf, PPG_BUF_SIZE,
+							audio_buf, AUDIO_BUF_SIZE,
+							PPG_SAMPLES_PER_SECOND, AUDIO_SAMPLES_PER_SECOND, heartbeat);
 }
+
 /* USER CODE END 0 */
 
 /**
@@ -186,9 +231,9 @@ int main(void)
   MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
   //buffers for "chunk" of data given to algo
-  red_buf = (uint32_t*)calloc(PPG_BUF_SIZE, 4);
-  ir_buf = (uint32_t*)calloc(PPG_BUF_SIZE, 4);
-  audio_buf = (int32_t*)calloc(AUDIO_BUF_SIZE, 4);
+  red_buf = (uint32_T*)calloc(PPG_BUF_SIZE, 4);
+  ir_buf = (uint32_T*)calloc(PPG_BUF_SIZE, 4);
+  audio_buf = (int32_T*)calloc(AUDIO_BUF_SIZE, 4);
 
   hr_sens = new MAX30105();
   hr_sens->begin(hi2c1);
@@ -208,6 +253,7 @@ int main(void)
   {
 	  if (ppg_buf_index >= PPG_BUF_SIZE) {
 		  ProcessData();
+		  main_hr_processing();
 	  }
 
 	  if (queueI2cTransfer)
