@@ -43,12 +43,15 @@
 /* USER CODE BEGIN PM */
 #define I2C_BUF_LENGTH 288 // bytes for the max number of samples we might get
 #define MAX30105_ADDRESS          (0x57 << 1) //7-bit I2C Address, shifted left once
-static const uint8_t SAMPLE_WINDOW = 3; // seconds
+static const uint8_t SAMPLE_WINDOW = 2; // seconds
 
 static const uint32_t PPG_SAMPLING_FREQUENCY = 400;
 static const uint32_t PPG_AVG_RATE = 8;
 static const uint32_t PPG_SAMPLES_PER_SECOND = PPG_SAMPLING_FREQUENCY/PPG_AVG_RATE;
-static const uint32_t AUDIO_SAMPLES_PER_SECOND = 1000;
+
+static const uint32_t AUDIO_FS_BEFORE_AVG = 1000;
+static const uint32_t AUDIO_AVG_RATE = 4;
+static const uint32_t AUDIO_SAMPLES_PER_SECOND = AUDIO_FS_BEFORE_AVG / AUDIO_AVG_RATE;
 static const uint32_t PPG_BUF_SIZE = (PPG_SAMPLES_PER_SECOND * SAMPLE_WINDOW);
 static const uint32_t AUDIO_BUF_SIZE  = (AUDIO_SAMPLES_PER_SECOND * SAMPLE_WINDOW);
 
@@ -113,73 +116,6 @@ static unsigned short argInit_uint16_T(void);
 static unsigned int argInit_uint32_T(void);
 static void main_hr_processing(void);
 
-/* Function Definitions */
-/*
- * Arguments    : int result[1250]
- * Return Type  : void
- */
-static void argInit_1250x1_int32_T(int result[1250])
-{
-  int idx0;
-  /* Loop over the array to initialize each element. */
-  for (idx0 = 0; idx0 < 1250; idx0++) {
-    /* Set the value of the array element.
-Change this value to the value that the application requires. */
-    result[idx0] = argInit_int32_T();
-  }
-}
-
-/*
- * Arguments    : unsigned int result[250]
- * Return Type  : void
- */
-static void argInit_250x1_uint32_T(unsigned int result[250])
-{
-  int idx0;
-  /* Loop over the array to initialize each element. */
-  for (idx0 = 0; idx0 < 250; idx0++) {
-    /* Set the value of the array element.
-Change this value to the value that the application requires. */
-    result[idx0] = argInit_uint32_T();
-  }
-}
-
-/*
- * Arguments    : void
- * Return Type  : int
- */
-static int argInit_int32_T(void)
-{
-  return 0;
-}
-
-/*
- * Arguments    : void
- * Return Type  : double
- */
-static double argInit_real_T(void)
-{
-  return 0.0;
-}
-
-/*
- * Arguments    : void
- * Return Type  : unsigned short
- */
-static unsigned short argInit_uint16_T(void)
-{
-  return 0U;
-}
-
-/*
- * Arguments    : void
- * Return Type  : unsigned int
- */
-static unsigned int argInit_uint32_T(void)
-{
-  return 0U;
-}
-
 /*
  * Arguments    : void
  * Return Type  : void
@@ -218,7 +154,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  main_hr_processing();
+
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -253,7 +189,6 @@ int main(void)
   {
 	  if (ppg_buf_index >= PPG_BUF_SIZE) {
 		  ProcessData();
-		  main_hr_processing();
 	  }
 
 	  if (queueI2cTransfer)
@@ -530,6 +465,7 @@ void ProcessData()
 	// Capture the indices before outside forces can change them
 	auto local_audio_idx = audio_buf_index;
 	auto local_ppg_idx = ppg_buf_index;
+	main_hr_processing();
 
 	// Disable the data collection interrupts
 //	HAL_I2S_DMAStop(&hi2s1);
@@ -646,17 +582,27 @@ void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
 	const uint8_t samplesToSkip = 32; // only pick 1 of 16 samples
 	const uint8_t bytesBetweenSamples = 4; // each sample is 2 bytes, have L and R in buffer but only want L
-	for (uint16_t i = 0; i < I2S_FIFO_SIZE; i += (samplesToSkip*bytesBetweenSamples))
+	const uint16_t for_increment = samplesToSkip * bytesBetweenSamples * AUDIO_AVG_RATE;
+	const uint8_t shift_amt = 2; // log2(AUDIO_AVG_RATE)
+	for (uint16_t i = 0; i < I2S_FIFO_SIZE; i += for_increment)
 	{
 		// we've filled the audio buffer
 		if (audio_buf_index >= AUDIO_BUF_SIZE) { return; }
 
-		// Parse the audio data
-		int32_t audio1 = (int32_t)(data_in[i] << 16 | data_in[i+1]);
-		audio1 = audio1 >> 14;
+		int32_t audio_avg = 0;
+		for (uint16_t j = 0; j < AUDIO_AVG_RATE; j++)
+		{
+			// Parse the audio data
+			int32_t temp = \
+					(int32_t)(data_in[i + (j*samplesToSkip*bytesBetweenSamples)] << 16 \
+							| data_in[i+1 + (j*samplesToSkip*bytesBetweenSamples)]);
+			// perform the req'd audio shift (14) and divide by our averaging shift_amt
+			temp = temp >> (14 + shift_amt);
+			audio_avg += temp;
+		}
 
 		// Add to buffer and increment
-		audio_buf[audio_buf_index] = audio1;
+		audio_buf[audio_buf_index] = audio_avg;
 		audio_buf_index++;
 	}
 }
