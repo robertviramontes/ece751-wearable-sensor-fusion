@@ -43,7 +43,7 @@
 /* USER CODE BEGIN PM */
 #define I2C_BUF_LENGTH 288 // bytes for the max number of samples we might get
 #define MAX30105_ADDRESS          (0x57 << 1) //7-bit I2C Address, shifted left once
-static const uint8_t SAMPLE_WINDOW = 2; // seconds
+static const uint8_t SAMPLE_WINDOW = 3; // seconds
 
 static const uint32_t PPG_SAMPLING_FREQUENCY = 400;
 static const uint32_t PPG_AVG_RATE = 8;
@@ -75,9 +75,9 @@ UART_HandleTypeDef huart2;
 uint8_t i2c_buf[I2C_BUF_LENGTH];
 uint16_t data_in[I2S_FIFO_SIZE];
 MAX30105 *hr_sens;
-uint32_T *red_buf;
-uint32_T *ir_buf;
-int32_T *audio_buf;
+float *red_buf;
+float *ir_buf;
+float *audio_buf;
 uint16_t volatile ppg_buf_index = 0;
 uint16_t volatile audio_buf_index = 0;
 // Signal from timer that we should queue an I2C transfer from PPG
@@ -167,9 +167,9 @@ int main(void)
   MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
   //buffers for "chunk" of data given to algo
-  red_buf = (uint32_T*)calloc(PPG_BUF_SIZE, 4);
-  ir_buf = (uint32_T*)calloc(PPG_BUF_SIZE, 4);
-  audio_buf = (int32_T*)calloc(AUDIO_BUF_SIZE, 4);
+  red_buf = (float*)calloc(PPG_BUF_SIZE, 4);
+  ir_buf = (float*)calloc(PPG_BUF_SIZE, 4);
+  audio_buf = (float*)calloc(AUDIO_BUF_SIZE, 4);
 
   hr_sens = new MAX30105();
   hr_sens->begin(hi2c1);
@@ -472,14 +472,14 @@ void ProcessData()
 //	HAL_TIM_Base_Stop_IT(&htim11);
 	// Log to console all the updated audio values
 	for (int i = 0; i < local_audio_idx; i += 1) {
-		sprintf((char*)uart_buf,"%li\r\n", audio_buf[i]);
+		sprintf((char*)uart_buf,"%f\r\n", audio_buf[i]);
 		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
 	}
 	// Log to console all the updated ppg values
 	for (int i = 0; i < local_ppg_idx; i += 1) {
-		sprintf((char*)uart_buf,"RED VAL:%li\r\n", red_buf[i]);
+		sprintf((char*)uart_buf,"RED VAL:%f\r\n", red_buf[i]);
 		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
-		sprintf((char*)uart_buf,"IR VAL:%li\r\n", ir_buf[i]);
+		sprintf((char*)uart_buf,"IR VAL:%f\r\n", ir_buf[i]);
 		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
 	}
 
@@ -536,7 +536,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef * hi2c)
 
 		tempLong &= 0x3FFFF; //Zero out all but 18 bits
 
-		red_buf[ppg_buf_index] = tempLong; //Store this reading into the sense array
+		red_buf[ppg_buf_index] = (float)tempLong; //Store this reading into the sense array
 
 		if (activeLEDs > 1)
 		{
@@ -551,7 +551,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef * hi2c)
 
 		  tempLong &= 0x3FFFF; //Zero out all but 18 bits
 
-		  ir_buf[ppg_buf_index] = tempLong;
+		  ir_buf[ppg_buf_index] = (float) tempLong;
 		}
 
 		if (activeLEDs > 2)
@@ -602,7 +602,7 @@ void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 		}
 
 		// Add to buffer and increment
-		audio_buf[audio_buf_index] = audio_avg;
+		audio_buf[audio_buf_index] = (float) audio_avg;
 		audio_buf_index++;
 	}
 }

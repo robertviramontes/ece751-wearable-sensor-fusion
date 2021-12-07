@@ -5,7 +5,7 @@
  * File: hr_processing.h
  *
  * MATLAB Coder version            : 5.3
- * C/C++ source code generated on  : 04-Dec-2021 18:34:49
+ * C/C++ source code generated on  : 06-Dec-2021 17:32:44
  */
 
 #ifndef HR_PROCESSING_H
@@ -21,11 +21,11 @@ extern "C" {
 #endif
 
 /* Function Declarations */
-extern unsigned short
-hr_processing(const unsigned int ir_vals[100], double ir_length,
-              const unsigned int red_vals[100], double red_length,
-              const int sound_vals[500], double sound_length, double Fs_ppg,
-              double Fs_sound, unsigned short previous_bpm);
+extern double hr_processing(const float ir_vals[150], double ir_length,
+                            const float red_vals[150], double red_length,
+                            const float sound_vals[750], double sound_length,
+                            double Fs_ppg, double Fs_sound,
+                            double previous_bpm);
 
 extern void hr_processing_initialize(void);
 

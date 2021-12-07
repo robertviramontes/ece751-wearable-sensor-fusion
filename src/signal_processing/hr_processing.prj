@@ -1,7 +1,7 @@
 <deployment-project plugin="plugin.coder" plugin-version="R2021a">
-  <configuration build-checksum="2823575370" file="C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.prj" location="C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing" name="hr_processing" target="target.unifiedcoder" target-name="MATLAB Coder">
+  <configuration build-checksum="1236208937" file="C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.prj" location="C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing" name="hr_processing" target="target.unifiedcoder" target-name="MATLAB Coder">
     <profile key="profile.mex">
-      <param.BuiltInstrumentedMex />
+      <param.BuiltInstrumentedMex>false</param.BuiltInstrumentedMex>
       <param.RanInstrumentedMex>false</param.RanInstrumentedMex>
       <param.WorkingFolder>option.WorkingFolder.Project</param.WorkingFolder>
       <param.SpecifiedWorkingFolder />
@@ -10,7 +10,7 @@
       <param.SearchPaths />
       <var.SimdQueryHardwareVendor>Generic</var.SimdQueryHardwareVendor>
       <var.SimdQueryHardwareType>MATLAB Host Computer</var.SimdQueryHardwareType>
-      <param.InstructionSetExtensionsAvailableInUI>true</param.InstructionSetExtensionsAvailableInUI>
+      <param.InstructionSetExtensionsAvailableInUI>false</param.InstructionSetExtensionsAvailableInUI>
       <param.InstructionSetExtensions>None</param.InstructionSetExtensions>
       <param.ResponsivenessChecks>true</param.ResponsivenessChecks>
       <param.ExtrinsicCalls>true</param.ExtrinsicCalls>
@@ -27,7 +27,7 @@
       <param.HighlightPotentialRowMajorIssues>true</param.HighlightPotentialRowMajorIssues>
       <param.PreserveArrayDimensions>false</param.PreserveArrayDimensions>
       <param.EliminateSingleDimensions>false</param.EliminateSingleDimensions>
-      <param.StackUsageMax>200000</param.StackUsageMax>
+      <param.StackUsageMax>80000</param.StackUsageMax>
       <param.FilePartitionMethod>option.FilePartitionMethod.MapMFileToCFile</param.FilePartitionMethod>
       <param.GenerateComments>true</param.GenerateComments>
       <param.MATLABSourceComments>false</param.MATLABSourceComments>
@@ -76,7 +76,7 @@
       <param.EnableAutoParallelizationReporting>true</param.EnableAutoParallelizationReporting>
       <param.CacheDynamicArrayDataPointer>true</param.CacheDynamicArrayDataPointer>
       <param.EnableJIT>false</param.EnableJIT>
-      <param.EnableJITSilentBailOut />
+      <param.EnableJITSilentBailOut>false</param.EnableJITSilentBailOut>
       <param.CheckForIssuesJIT>true</param.CheckForIssuesJIT>
       <param.EnableGitSupport>false</param.EnableGitSupport>
       <param.EnableAutoCommit>false</param.EnableAutoCommit>
@@ -108,7 +108,6 @@
         <param.HighlightPotentialRowMajorIssues />
         <param.PreserveArrayDimensions />
         <param.EliminateSingleDimensions />
-        <param.StackUsageMax />
         <param.FilePartitionMethod />
         <param.GenerateComments />
         <param.MATLABSourceComments />
@@ -170,8 +169,8 @@
       <param.SpecifiedBuildFolder />
       <param.SearchPaths />
       <var.SimdQueryHardwareVendor>ARM Compatible</var.SimdQueryHardwareVendor>
-      <var.SimdQueryHardwareType>ARM Cortex-M</var.SimdQueryHardwareType>
-      <param.InstructionSetExtensionsAvailableInUI>true</param.InstructionSetExtensionsAvailableInUI>
+      <var.SimdQueryHardwareType>ARM Cortex</var.SimdQueryHardwareType>
+      <param.InstructionSetExtensionsAvailableInUI>false</param.InstructionSetExtensionsAvailableInUI>
       <param.InstructionSetExtensions>None</param.InstructionSetExtensions>
       <param.SaturateOnIntegerOverflow>true</param.SaturateOnIntegerOverflow>
       <param.PurelyIntegerCode>false</param.PurelyIntegerCode>
@@ -183,11 +182,11 @@
       <param.DynamicMemoryAllocation>option.DynamicMemoryAllocation.Threshold</param.DynamicMemoryAllocation>
       <param.DynamicMemoryAllocationThreshold>65536</param.DynamicMemoryAllocationThreshold>
       <param.DynamicMemoryAllocationInterface>option.DynamicMemoryAllocationInterface.AUTO</param.DynamicMemoryAllocationInterface>
-      <param.RowMajor>option.RowMajor.RowMajor</param.RowMajor>
+      <param.RowMajor>option.RowMajor.ColumnMajor</param.RowMajor>
       <param.HighlightPotentialRowMajorIssues>true</param.HighlightPotentialRowMajorIssues>
       <param.PreserveArrayDimensions>false</param.PreserveArrayDimensions>
       <param.EliminateSingleDimensions>false</param.EliminateSingleDimensions>
-      <param.StackUsageMax>200000</param.StackUsageMax>
+      <param.StackUsageMax>80000</param.StackUsageMax>
       <param.MultiInstanceCode>false</param.MultiInstanceCode>
       <param.FilePartitionMethod>option.FilePartitionMethod.SingleFile</param.FilePartitionMethod>
       <param.GenerateComments>true</param.GenerateComments>
@@ -266,15 +265,15 @@
       <param.DeprecatedCRLFlag>false</param.DeprecatedCRLFlag>
       <param.SameHardware>true</param.SameHardware>
       <param.Toolchain>GNU Tools for ARM Embedded Processors</param.Toolchain>
-      <param.BuildConfiguration>Faster Runs</param.BuildConfiguration>
+      <param.BuildConfiguration>Faster Builds</param.BuildConfiguration>
       <param.CustomToolchainOptions />
       <var.ToolchainSettingsVisible>true</var.ToolchainSettingsVisible>
-      <param.target.Data>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;ctdata&gt;&lt;configuredHardware/&gt;&lt;/ctdata&gt;</param.target.Data>
-      <param.target.ActiveType>option.target.TargetType.Custom</param.target.ActiveType>
-      <param.target.ActiveTarget />
+      <param.target.Data>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;ctdata&gt;&lt;configuredHardware&gt;&lt;hardware version="1.0"&gt;&lt;name&gt;STM32 Nucleo F411RE&lt;/name&gt;&lt;customValues/&gt;&lt;/hardware&gt;&lt;/configuredHardware&gt;&lt;/ctdata&gt;</param.target.Data>
+      <param.target.ActiveType>option.target.TargetType.Target</param.target.ActiveType>
+      <param.target.ActiveTarget>STM32 Nucleo F411RE</param.target.ActiveTarget>
       <param.HardwareVendor.Production>ARM Compatible</param.HardwareVendor.Production>
-      <param.HardwareType.Production>ARM Cortex-M</param.HardwareType.Production>
-      <param.HWDeviceType.Production>ARM Compatible-&gt;ARM Cortex-M</param.HWDeviceType.Production>
+      <param.HardwareType.Production>ARM Cortex</param.HardwareType.Production>
+      <param.HWDeviceType.Production>ARM Compatible-&gt;ARM Cortex</param.HWDeviceType.Production>
       <var.instance.enabled.Production>true</var.instance.enabled.Production>
       <param.HardwareSizeChar.Production>8</param.HardwareSizeChar.Production>
       <param.HardwareSizeShort.Production>16</param.HardwareSizeShort.Production>
@@ -294,8 +293,8 @@
       <param.HardwareAtomicFloatSize.Production>option.HardwareAtomicFloatSize.Double</param.HardwareAtomicFloatSize.Production>
       <param.HardwareDivisionRounding.Production>option.HardwareDivisionRounding.Zero</param.HardwareDivisionRounding.Production>
       <param.HardwareVendor.Target>ARM Compatible</param.HardwareVendor.Target>
-      <param.HardwareType.Target>ARM Cortex-M</param.HardwareType.Target>
-      <param.HWDeviceType.Target>ARM Compatible-&gt;ARM Cortex-M</param.HWDeviceType.Target>
+      <param.HardwareType.Target>ARM Cortex</param.HardwareType.Target>
+      <param.HWDeviceType.Target>ARM Compatible-&gt;ARM Cortex</param.HWDeviceType.Target>
       <var.instance.enabled.Target>false</var.instance.enabled.Target>
       <param.HardwareSizeChar.Target>8</param.HardwareSizeChar.Target>
       <param.HardwareSizeShort.Target>16</param.HardwareSizeShort.Target>
@@ -382,10 +381,10 @@
         <param.DynamicMemoryAllocation />
         <param.DynamicMemoryAllocationThreshold />
         <param.DynamicMemoryAllocationInterface />
+        <param.RowMajor />
         <param.HighlightPotentialRowMajorIssues />
         <param.PreserveArrayDimensions />
         <param.EliminateSingleDimensions />
-        <param.StackUsageMax />
         <param.MultiInstanceCode />
         <param.GenerateComments />
         <param.CommentStyle />
@@ -458,10 +457,8 @@
         <param.TargetLangStandard />
         <param.DeprecatedCRLFlag />
         <param.SameHardware />
-        <param.BuildConfiguration />
         <param.CustomToolchainOptions />
         <var.ToolchainSettingsVisible />
-        <param.target.ActiveTarget />
         <param.HWDeviceType.Production />
         <var.instance.enabled.Production />
         <param.HardwareSizeChar.Production />
@@ -578,7 +575,7 @@
       <param.SearchPaths />
       <var.SimdQueryHardwareVendor>Generic</var.SimdQueryHardwareVendor>
       <var.SimdQueryHardwareType>MATLAB Host Computer</var.SimdQueryHardwareType>
-      <param.InstructionSetExtensionsAvailableInUI>true</param.InstructionSetExtensionsAvailableInUI>
+      <param.InstructionSetExtensionsAvailableInUI>false</param.InstructionSetExtensionsAvailableInUI>
       <param.InstructionSetExtensions>None</param.InstructionSetExtensions>
       <param.NumberOfCpuThreads>0</param.NumberOfCpuThreads>
       <param.hdl.MapPersistentVarsToRAM />
@@ -913,6 +910,11 @@
     <param.HasECoderFeatures>true</param.HasECoderFeatures>
     <param.HasGpuCoder>false</param.HasGpuCoder>
     <var.HasNeuralNetworkToolbox>false</var.HasNeuralNetworkToolbox>
+    <param.newGlobals>
+      <Globals>
+        <idpTable />
+      </Globals>
+    </param.newGlobals>
     <param.mex.mainhtml />
     <param.grt.mainhtml />
     <param.CallGeneratedCodeFromTest>true</param.CallGeneratedCodeFromTest>
@@ -923,7 +925,7 @@
     <param.AutoInferUnboundedSizeThreshold>2048</param.AutoInferUnboundedSizeThreshold>
     <param.EnableFixedPointStep>false</param.EnableFixedPointStep>
     <param.EnableScreener>true</param.EnableScreener>
-    <param.AnnotationChecksum>3639134843</param.AnnotationChecksum>
+    <param.AnnotationChecksum>2142049663</param.AnnotationChecksum>
     <var.LegacyTarget />
     <var.MirrorOnOpen>false</var.MirrorOnOpen>
     <param.FixedPointEnabled>false</param.FixedPointEnabled>
@@ -932,12 +934,12 @@
     <param.unifiedParamStorage />
     <var.gc.lastOutputRoot>codegen\lib\hr_processing</var.gc.lastOutputRoot>
     <var.gc.lastOutputType>C_CODE</var.gc.lastOutputType>
-    <var.gc.preBuildChecksum>3495505330</var.gc.preBuildChecksum>
-    <var.cfi.lastOutputRoot>codegen\lib\hr_processing</var.cfi.lastOutputRoot>
-    <var.cfi.preBuildChecksum>3223270896</var.cfi.preBuildChecksum>
+    <var.gc.preBuildChecksum>1236208937</var.gc.preBuildChecksum>
+    <var.cfi.lastOutputRoot>codegen\mex\hr_processing</var.cfi.lastOutputRoot>
+    <var.cfi.preBuildChecksum>3230118729</var.cfi.preBuildChecksum>
     <var.lastCfiTestSnippet>hr_driver</var.lastCfiTestSnippet>
     <var.outdatedOnRestore>false</var.outdatedOnRestore>
-    <var.lastUserSourceChecksum>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;checksum&gt;&lt;includedFiles&gt;&lt;file&gt;C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.m&lt;/file&gt;&lt;/includedFiles&gt;&lt;value&gt;2868637950&lt;/value&gt;&lt;/checksum&gt;</var.lastUserSourceChecksum>
+    <var.lastUserSourceChecksum>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;checksum&gt;&lt;includedFiles&gt;&lt;file&gt;C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.m&lt;/file&gt;&lt;/includedFiles&gt;&lt;value&gt;3466751580&lt;/value&gt;&lt;/checksum&gt;</var.lastUserSourceChecksum>
     <var.sourceSetState>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;sourceModel&gt;&lt;primarySourceFiles&gt;&lt;file&gt;C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.m&lt;/file&gt;&lt;/primarySourceFiles&gt;&lt;fixedPointSourceFiles/&gt;&lt;fixedPointSourceRegistered&gt;false&lt;/fixedPointSourceRegistered&gt;&lt;fixedPointSourceSelected&gt;false&lt;/fixedPointSourceSelected&gt;&lt;/sourceModel&gt;</var.sourceSetState>
     <param.forceMexBuild>false</param.forceMexBuild>
     <param.NoDefaultJIT>false</param.NoDefaultJIT>
@@ -1158,7 +1160,7 @@
     </unset>
     <fileset.entrypoints>
       <file custom-data-expanded="false" value="${PROJECT_ROOT}\hr_processing.m">
-        <Marker>1638667057582</Marker>
+        <Marker>1638833547119</Marker>
       </file>
     </fileset.entrypoints>
     <fileset.testbench>
@@ -1175,11 +1177,11 @@
           <Input Name="sound_length" typeId="1" />
           <Input Name="Fs_ppg" typeId="1" />
           <Input Name="Fs_sound" typeId="1" />
-          <Input Name="previous_bpm" typeId="3" />
+          <Input Name="previous_bpm" typeId="1" />
           <idpTable>
             <type typeId="0">
               <Class>single</Class>
-              <Size>100 x 1</Size>
+              <Size>150 x 1</Size>
               <Value />
               <InitialValue />
               <UserDefined>true</UserDefined>
@@ -1190,21 +1192,13 @@
               <Size>1 x 1</Size>
               <Value />
               <InitialValue />
-              <UserDefined>true</UserDefined>
+              <UserDefined>false</UserDefined>
               <Complex>false</Complex>
               <Sparse>false</Sparse>
             </type>
             <type typeId="2">
               <Class>single</Class>
-              <Size>500 x 1</Size>
-              <Value />
-              <InitialValue />
-              <UserDefined>true</UserDefined>
-              <Complex>false</Complex>
-            </type>
-            <type typeId="3">
-              <Class>uint16</Class>
-              <Size>1 x 1</Size>
+              <Size>750 x 1</Size>
               <Value />
               <InitialValue />
               <UserDefined>true</UserDefined>
