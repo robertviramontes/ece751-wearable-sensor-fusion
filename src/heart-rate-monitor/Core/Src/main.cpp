@@ -25,9 +25,11 @@
 #include "MAX30105.h"
 #include <string.h>
 #include <stdio.h>
-
-#include "hr_processing.h"
+#include "arm_math.h"
+#include "arm_const_structs.h"
 #include "rt_nonfinite.h"
+#include "wavelet_peaks.h"
+#include "wavelet_peaks_terminate.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,7 +45,7 @@
 /* USER CODE BEGIN PM */
 #define I2C_BUF_LENGTH 288 // bytes for the max number of samples we might get
 #define MAX30105_ADDRESS          (0x57 << 1) //7-bit I2C Address, shifted left once
-static const uint8_t SAMPLE_WINDOW = 3; // seconds
+static const uint8_t SAMPLE_WINDOW = 4; // seconds
 
 static const uint32_t PPG_SAMPLING_FREQUENCY = 400;
 static const uint32_t PPG_AVG_RATE = 8;
@@ -57,6 +59,8 @@ static const uint32_t AUDIO_BUF_SIZE  = (AUDIO_SAMPLES_PER_SECOND * SAMPLE_WINDO
 
 #define I2S_FIFO_SIZE 1024
 static const uint8_t MAX30105_FIFODATA =		0x07;
+
+static const uint16_t FFT_LEN = 1024;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -85,6 +89,8 @@ bool volatile queueI2cTransfer = false;
 // Signal to timer that I2C transfer complete, OK to start
 // requesting data again.
 bool volatile waitingForI2c = false;
+
+arm_rfft_fast_instance_f32 varInstCfftF32;
 
 uint32_t volatile start_tick;
 uint32_t volatile end_tick;
@@ -123,10 +129,44 @@ static void main_hr_processing(void);
 static void main_hr_processing(void)
 {
   static short heartbeat;
-  heartbeat = hr_processing(ir_buf, PPG_BUF_SIZE,
-		  	  	  	  	  	red_buf, PPG_BUF_SIZE,
-							audio_buf, AUDIO_BUF_SIZE,
-							PPG_SAMPLES_PER_SECOND, AUDIO_SAMPLES_PER_SECOND, heartbeat);
+
+  arm_status status;
+  float32_t maxValue;
+  uint32_t maxIndex;
+  status = ARM_MATH_SUCCESS;
+
+  // Fill an 2^n array with 0s for 0 paddign
+  float32_t fft_array[FFT_LEN];
+  arm_fill_f32(0, &fft_array[AUDIO_BUF_SIZE], FFT_LEN-AUDIO_BUF_SIZE);
+  float32_t mean;
+  // Get the DC component as the mean of the audio sample
+  arm_mean_f32(audio_buf, AUDIO_BUF_SIZE, &mean);
+  // Subtract the mean from the audio buf data.
+  arm_fill_f32(mean, fft_array, AUDIO_BUF_SIZE);
+  arm_sub_f32(audio_buf, fft_array, fft_array, AUDIO_BUF_SIZE);
+
+  float32_t fft_output[FFT_LEN];
+  uint8_t ifftFlag = 0; // 0=FFT, 1=InverseFFT
+  /* Process the data through the RFFT/RIFFT module */
+  arm_rfft_fast_f32 (&varInstCfftF32, fft_array, fft_output, ifftFlag);
+  /* Process the data through the Complex Magnitude Module for
+  calculating the magnitude at each bin */
+  arm_cmplx_mag_f32(fft_output, fft_array, FFT_LEN/2);
+  /* Calculates maxValue and returns corresponding BIN value */
+  arm_max_f32(&fft_array[1], FFT_LEN/2 - 1, &maxValue, &maxIndex);
+
+
+  auto ir_bpm = wavelet_peaks(ir_buf, PPG_SAMPLES_PER_SECOND);
+  auto red_bpm = wavelet_peaks(red_buf, PPG_SAMPLES_PER_SECOND);
+  uint8_t uart_buf[64];
+//  sprintf((char*)uart_buf,"red bpm:%.0f\r\n", red_bpm);
+//  HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+//  sprintf((char*)uart_buf,"ir bpm:%.0f\r\n", ir_bpm);
+//    HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+//  heartbeat = hr_processing(ir_buf, PPG_BUF_SIZE,
+//		  	  	  	  	  	red_buf, PPG_BUF_SIZE,
+//							audio_buf, AUDIO_BUF_SIZE,
+//							PPG_SAMPLES_PER_SECOND, AUDIO_SAMPLES_PER_SECOND, heartbeat);
 }
 
 /* USER CODE END 0 */
@@ -174,6 +214,9 @@ int main(void)
   hr_sens = new MAX30105();
   hr_sens->begin(hi2c1);
   hr_sens->setup(0x1D, PPG_AVG_RATE, 2, PPG_SAMPLING_FREQUENCY, 215, 8192);
+
+  arm_status status;
+  status=arm_rfft_fast_init_f32(&varInstCfftF32, FFT_LEN);
 
   // Start timer
   HAL_TIM_Base_Start_IT(&htim11);
@@ -472,14 +515,14 @@ void ProcessData()
 //	HAL_TIM_Base_Stop_IT(&htim11);
 	// Log to console all the updated audio values
 	for (int i = 0; i < local_audio_idx; i += 1) {
-		sprintf((char*)uart_buf,"%f\r\n", audio_buf[i]);
+		sprintf((char*)uart_buf,"%.0f\r\n", audio_buf[i]);
 		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
 	}
 	// Log to console all the updated ppg values
 	for (int i = 0; i < local_ppg_idx; i += 1) {
-		sprintf((char*)uart_buf,"RED VAL:%f\r\n", red_buf[i]);
+		sprintf((char*)uart_buf,"RED VAL:%.0f\r\n", red_buf[i]);
 		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
-		sprintf((char*)uart_buf,"IR VAL:%f\r\n", ir_buf[i]);
+		sprintf((char*)uart_buf,"IR VAL:%.0f\r\n", ir_buf[i]);
 		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
 	}
 
