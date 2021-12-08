@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.coder" plugin-version="R2021a">
-  <configuration build-checksum="1102539494" file="C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.prj" location="C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing" name="hr_processing" target="target.unifiedcoder" target-name="MATLAB Coder">
+  <configuration build-checksum="2158913674" file="C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\wavelet_peaks.prj" location="C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing" name="wavelet_peaks" target="target.unifiedcoder" target-name="MATLAB Coder">
     <profile key="profile.mex">
       <param.BuiltInstrumentedMex />
       <param.RanInstrumentedMex>false</param.RanInstrumentedMex>
@@ -10,7 +10,7 @@
       <param.SearchPaths />
       <var.SimdQueryHardwareVendor>Generic</var.SimdQueryHardwareVendor>
       <var.SimdQueryHardwareType>MATLAB Host Computer</var.SimdQueryHardwareType>
-      <param.InstructionSetExtensionsAvailableInUI>true</param.InstructionSetExtensionsAvailableInUI>
+      <param.InstructionSetExtensionsAvailableInUI>false</param.InstructionSetExtensionsAvailableInUI>
       <param.InstructionSetExtensions>None</param.InstructionSetExtensions>
       <param.ResponsivenessChecks>true</param.ResponsivenessChecks>
       <param.ExtrinsicCalls>true</param.ExtrinsicCalls>
@@ -27,7 +27,7 @@
       <param.HighlightPotentialRowMajorIssues>true</param.HighlightPotentialRowMajorIssues>
       <param.PreserveArrayDimensions>false</param.PreserveArrayDimensions>
       <param.EliminateSingleDimensions>false</param.EliminateSingleDimensions>
-      <param.StackUsageMax>80000</param.StackUsageMax>
+      <param.StackUsageMax>200000</param.StackUsageMax>
       <param.FilePartitionMethod>option.FilePartitionMethod.MapMFileToCFile</param.FilePartitionMethod>
       <param.GenerateComments>true</param.GenerateComments>
       <param.MATLABSourceComments>false</param.MATLABSourceComments>
@@ -44,7 +44,7 @@
       <param.DefaultTestFile />
       <param.MergeInstrumentationResults>false</param.MergeInstrumentationResults>
       <param.VerificationMode>option.VerificationMode.None</param.VerificationMode>
-      <param.VerificationStatus>option.VerificationStatus.FailedTest</param.VerificationStatus>
+      <param.VerificationStatus>option.VerificationStatus.Inactive</param.VerificationStatus>
       <param.EnableMexProfiling>false</param.EnableMexProfiling>
       <var.BuiltWithMexProfiling>false</var.BuiltWithMexProfiling>
       <param.CustomSourceCode />
@@ -108,6 +108,7 @@
         <param.HighlightPotentialRowMajorIssues />
         <param.PreserveArrayDimensions />
         <param.EliminateSingleDimensions />
+        <param.StackUsageMax />
         <param.FilePartitionMethod />
         <param.GenerateComments />
         <param.MATLABSourceComments />
@@ -124,6 +125,7 @@
         <param.DefaultTestFile />
         <param.MergeInstrumentationResults />
         <param.VerificationMode />
+        <param.VerificationStatus />
         <param.EnableMexProfiling />
         <var.BuiltWithMexProfiling />
         <param.CustomSourceCode />
@@ -170,7 +172,7 @@
       <param.SearchPaths />
       <var.SimdQueryHardwareVendor>ARM Compatible</var.SimdQueryHardwareVendor>
       <var.SimdQueryHardwareType>ARM Cortex</var.SimdQueryHardwareType>
-      <param.InstructionSetExtensionsAvailableInUI>true</param.InstructionSetExtensionsAvailableInUI>
+      <param.InstructionSetExtensionsAvailableInUI>false</param.InstructionSetExtensionsAvailableInUI>
       <param.InstructionSetExtensions>None</param.InstructionSetExtensions>
       <param.SaturateOnIntegerOverflow>true</param.SaturateOnIntegerOverflow>
       <param.PurelyIntegerCode>false</param.PurelyIntegerCode>
@@ -186,9 +188,9 @@
       <param.HighlightPotentialRowMajorIssues>true</param.HighlightPotentialRowMajorIssues>
       <param.PreserveArrayDimensions>false</param.PreserveArrayDimensions>
       <param.EliminateSingleDimensions>false</param.EliminateSingleDimensions>
-      <param.StackUsageMax>80000</param.StackUsageMax>
+      <param.StackUsageMax>65536</param.StackUsageMax>
       <param.MultiInstanceCode>false</param.MultiInstanceCode>
-      <param.FilePartitionMethod>option.FilePartitionMethod.SingleFile</param.FilePartitionMethod>
+      <param.FilePartitionMethod>option.FilePartitionMethod.MapMFileToCFile</param.FilePartitionMethod>
       <param.GenerateComments>true</param.GenerateComments>
       <param.CommentStyle>option.CommentStyle.Auto</param.CommentStyle>
       <param.MATLABSourceComments>false</param.MATLABSourceComments>
@@ -237,7 +239,7 @@
       <param.ReportPotentialDifferences>false</param.ReportPotentialDifferences>
       <param.GenerateReport>true</param.GenerateReport>
       <param.GenerateCodeMetricsReport>false</param.GenerateCodeMetricsReport>
-      <param.GenerateCodeReplacementReport>true</param.GenerateCodeReplacementReport>
+      <param.GenerateCodeReplacementReport>false</param.GenerateCodeReplacementReport>
       <param.HighlightPotentialDataTypeIssues>false</param.HighlightPotentialDataTypeIssues>
       <param.HighlightImplicitExpansionIssues>true</param.HighlightImplicitExpansionIssues>
       <param.LaunchReport>false</param.LaunchReport>
@@ -245,13 +247,13 @@
       <param.SILDebugging>false</param.SILDebugging>
       <param.SILPILCheckConstantInputs>true</param.SILPILCheckConstantInputs>
       <param.SILPILSyncGlobalData>true</param.SILPILSyncGlobalData>
-      <param.CodeExecutionProfiling>true</param.CodeExecutionProfiling>
+      <param.CodeExecutionProfiling>false</param.CodeExecutionProfiling>
       <param.CodeProfilingInstrumentation>false</param.CodeProfilingInstrumentation>
       <param.DefaultTestFile />
       <param.MergeInstrumentationResults>false</param.MergeInstrumentationResults>
       <param.RanPilSilVerification>false</param.RanPilSilVerification>
       <param.VerificationMode>option.VerificationMode.None</param.VerificationMode>
-      <param.VerificationStatus>option.VerificationStatus.FailedTest</param.VerificationStatus>
+      <param.VerificationStatus>option.VerificationStatus.Inactive</param.VerificationStatus>
       <param.CustomSourceCode />
       <param.CustomHeaderCode />
       <param.CustomInitializer />
@@ -265,7 +267,7 @@
       <param.DeprecatedCRLFlag>false</param.DeprecatedCRLFlag>
       <param.SameHardware>true</param.SameHardware>
       <param.Toolchain>GNU Tools for ARM Embedded Processors</param.Toolchain>
-      <param.BuildConfiguration>Faster Builds</param.BuildConfiguration>
+      <param.BuildConfiguration>Faster Runs</param.BuildConfiguration>
       <param.CustomToolchainOptions />
       <var.ToolchainSettingsVisible>true</var.ToolchainSettingsVisible>
       <param.target.Data>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;ctdata&gt;&lt;configuredHardware&gt;&lt;hardware version="1.0"&gt;&lt;name&gt;STM32 Nucleo F411RE&lt;/name&gt;&lt;customValues/&gt;&lt;/hardware&gt;&lt;/configuredHardware&gt;&lt;/ctdata&gt;</param.target.Data>
@@ -386,6 +388,7 @@
         <param.PreserveArrayDimensions />
         <param.EliminateSingleDimensions />
         <param.MultiInstanceCode />
+        <param.FilePartitionMethod />
         <param.GenerateComments />
         <param.CommentStyle />
         <param.MATLABSourceComments />
@@ -434,6 +437,7 @@
         <param.ReportPotentialDifferences />
         <param.GenerateReport />
         <param.GenerateCodeMetricsReport />
+        <param.GenerateCodeReplacementReport />
         <param.HighlightPotentialDataTypeIssues />
         <param.HighlightImplicitExpansionIssues />
         <param.LaunchReport />
@@ -441,11 +445,13 @@
         <param.SILDebugging />
         <param.SILPILCheckConstantInputs />
         <param.SILPILSyncGlobalData />
+        <param.CodeExecutionProfiling />
         <param.CodeProfilingInstrumentation />
         <param.DefaultTestFile />
         <param.MergeInstrumentationResults />
         <param.RanPilSilVerification />
         <param.VerificationMode />
+        <param.VerificationStatus />
         <param.CustomSourceCode />
         <param.CustomHeaderCode />
         <param.CustomInitializer />
@@ -457,6 +463,7 @@
         <param.TargetLangStandard />
         <param.DeprecatedCRLFlag />
         <param.SameHardware />
+        <param.BuildConfiguration />
         <param.CustomToolchainOptions />
         <var.ToolchainSettingsVisible />
         <param.HWDeviceType.Production />
@@ -575,7 +582,7 @@
       <param.SearchPaths />
       <var.SimdQueryHardwareVendor>Generic</var.SimdQueryHardwareVendor>
       <var.SimdQueryHardwareType>MATLAB Host Computer</var.SimdQueryHardwareType>
-      <param.InstructionSetExtensionsAvailableInUI>true</param.InstructionSetExtensionsAvailableInUI>
+      <param.InstructionSetExtensionsAvailableInUI>false</param.InstructionSetExtensionsAvailableInUI>
       <param.InstructionSetExtensions>None</param.InstructionSetExtensions>
       <param.NumberOfCpuThreads>0</param.NumberOfCpuThreads>
       <param.hdl.MapPersistentVarsToRAM />
@@ -900,12 +907,10 @@
     </profile>
     <param.objective>option.objective.c</param.objective>
     <param.WorkflowStep>generateCode</param.WorkflowStep>
-    <param.TestSnippets>
-      <item>hr_driver</item>
-    </param.TestSnippets>
+    <param.TestSnippets />
     <param.ExternalFcnMajority>column</param.ExternalFcnMajority>
     <param.UseGlobals>option.UseGlobals.No</param.UseGlobals>
-    <param.outputfile>${PROJECT_ROOT}\codegen\lib\hr_processing\hr_processing.lib</param.outputfile>
+    <param.outputfile>${PROJECT_ROOT}\codegen\lib\wavelet_peaks\wavelet_peaks.lib</param.outputfile>
     <param.version>R2012a</param.version>
     <param.HasECoderFeatures>true</param.HasECoderFeatures>
     <param.HasGpuCoder>false</param.HasGpuCoder>
@@ -925,22 +930,21 @@
     <param.AutoInferUnboundedSizeThreshold>2048</param.AutoInferUnboundedSizeThreshold>
     <param.EnableFixedPointStep>false</param.EnableFixedPointStep>
     <param.EnableScreener>true</param.EnableScreener>
-    <param.AnnotationChecksum>2142049663</param.AnnotationChecksum>
+    <param.AnnotationChecksum>341127460</param.AnnotationChecksum>
     <var.LegacyTarget />
     <var.MirrorOnOpen>false</var.MirrorOnOpen>
     <param.FixedPointEnabled>false</param.FixedPointEnabled>
     <var.redirectedInputTypeData />
     <var.DismissScreener>false</var.DismissScreener>
     <param.unifiedParamStorage />
-    <var.gc.lastOutputRoot>codegen\lib\hr_processing</var.gc.lastOutputRoot>
+    <var.gc.lastOutputRoot>codegen\lib\wavelet_peaks</var.gc.lastOutputRoot>
     <var.gc.lastOutputType>C_CODE</var.gc.lastOutputType>
-    <var.gc.preBuildChecksum>1102539494</var.gc.preBuildChecksum>
-    <var.cfi.lastOutputRoot>codegen\mex\hr_processing</var.cfi.lastOutputRoot>
-    <var.cfi.preBuildChecksum>1108958616</var.cfi.preBuildChecksum>
-    <var.lastCfiTestSnippet>hr_driver</var.lastCfiTestSnippet>
+    <var.gc.preBuildChecksum>2158913674</var.gc.preBuildChecksum>
+    <var.cfi.lastOutputRoot />
+    <var.cfi.preBuildChecksum />
     <var.outdatedOnRestore>false</var.outdatedOnRestore>
-    <var.lastUserSourceChecksum>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;checksum&gt;&lt;includedFiles&gt;&lt;file&gt;C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.m&lt;/file&gt;&lt;/includedFiles&gt;&lt;value&gt;1698345546&lt;/value&gt;&lt;/checksum&gt;</var.lastUserSourceChecksum>
-    <var.sourceSetState>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;sourceModel&gt;&lt;primarySourceFiles&gt;&lt;file&gt;C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\hr_processing.m&lt;/file&gt;&lt;/primarySourceFiles&gt;&lt;fixedPointSourceFiles/&gt;&lt;fixedPointSourceRegistered&gt;false&lt;/fixedPointSourceRegistered&gt;&lt;fixedPointSourceSelected&gt;false&lt;/fixedPointSourceSelected&gt;&lt;/sourceModel&gt;</var.sourceSetState>
+    <var.lastUserSourceChecksum>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;checksum&gt;&lt;includedFiles&gt;&lt;file&gt;C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\wavelet_peaks.m&lt;/file&gt;&lt;/includedFiles&gt;&lt;value&gt;628435738&lt;/value&gt;&lt;/checksum&gt;</var.lastUserSourceChecksum>
+    <var.sourceSetState>&lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;&lt;sourceModel&gt;&lt;primarySourceFiles&gt;&lt;file&gt;C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\wavelet_peaks.m&lt;/file&gt;&lt;/primarySourceFiles&gt;&lt;fixedPointSourceFiles/&gt;&lt;fixedPointSourceRegistered&gt;false&lt;/fixedPointSourceRegistered&gt;&lt;fixedPointSourceSelected&gt;false&lt;/fixedPointSourceSelected&gt;&lt;/sourceModel&gt;</var.sourceSetState>
     <param.forceMexBuild>false</param.forceMexBuild>
     <param.NoDefaultJIT>false</param.NoDefaultJIT>
     <param.configImportActive>false</param.configImportActive>
@@ -949,10 +953,10 @@
     <var.boundToGui>true</var.boundToGui>
     <var.isConfigDialog>false</var.isConfigDialog>
     <var.ecoderEnabled>true</var.ecoderEnabled>
-    <param.mex.outputfile>hr_processing_mex</param.mex.outputfile>
-    <param.grt.outputfile>hr_processing</param.grt.outputfile>
+    <param.mex.outputfile>wavelet_peaks_mex</param.mex.outputfile>
+    <param.grt.outputfile>wavelet_peaks</param.grt.outputfile>
     <param.artifact>option.target.artifact.lib</param.artifact>
-    <param.outputfile>${PROJECT_ROOT}\codegen\lib\hr_processing\hr_processing.lib</param.outputfile>
+    <param.outputfile>${PROJECT_ROOT}\codegen\lib\wavelet_peaks\wavelet_peaks.lib</param.outputfile>
     <param.CppNamespace />
     <param.CppPackagesToNamespaces>true</param.CppPackagesToNamespaces>
     <param.CppNamespaceForMathworksCode>coder</param.CppNamespaceForMathworksCode>
@@ -1041,6 +1045,7 @@
     <param.FixedPointUseDesignRanges>false</param.FixedPointUseDesignRanges>
     <unset>
       <param.objective />
+      <param.TestSnippets />
       <param.ExternalFcnMajority />
       <param.UseGlobals />
       <param.outputfile />
@@ -1064,6 +1069,8 @@
       <var.redirectedInputTypeData />
       <var.DismissScreener />
       <param.unifiedParamStorage />
+      <var.cfi.lastOutputRoot />
+      <var.cfi.preBuildChecksum />
       <var.outdatedOnRestore />
       <param.forceMexBuild />
       <param.NoDefaultJIT />
@@ -1161,41 +1168,39 @@
       <param.FixedPointUseDesignRanges />
     </unset>
     <fileset.entrypoints>
-      <file custom-data-expanded="false" value="${PROJECT_ROOT}\hr_processing.m">
-        <Marker>1638917548620</Marker>
+      <file custom-data-expanded="false" value="${PROJECT_ROOT}\wavelet_peaks.m">
+        <Marker>1638919324210</Marker>
       </file>
     </fileset.entrypoints>
-    <fileset.testbench>
-      <file>${PROJECT_ROOT}\hr_driver.mlx</file>
-    </fileset.testbench>
+    <fileset.testbench />
     <fileset.inputtypes>
-      <file custom-data-expanded="false" value="${PROJECT_ROOT}\hr_processing.m">
-        <Inputs fileName="hr_processing.m" functionName="hr_processing">
-          <Input Name="ir_vals" typeId="0" />
-          <Input Name="ir_length" typeId="0" />
-          <Input Name="red_vals" typeId="0" />
-          <Input Name="red_length" typeId="0" />
-          <Input Name="sound_vals" typeId="0" />
-          <Input Name="sound_length" typeId="0" />
-          <Input Name="Fs_ppg" typeId="0" />
-          <Input Name="Fs_sound" typeId="0" />
-          <Input Name="previous_bpm" typeId="0" />
+      <file custom-data-expanded="false" value="${PROJECT_ROOT}\wavelet_peaks.m">
+        <Inputs fileName="wavelet_peaks.m" functionName="wavelet_peaks">
+          <Input Name="vals" typeId="0" />
+          <Input Name="Fs" typeId="1" />
           <idpTable>
             <type typeId="0">
-              <Class>&lt;Undefined&gt;</Class>
+              <Class>single</Class>
+              <Size>200 x 1</Size>
+              <Value />
+              <InitialValue />
+              <UserDefined>true</UserDefined>
+              <Complex>false</Complex>
+            </type>
+            <type typeId="1">
+              <Class>uint32</Class>
               <Size>1 x 1</Size>
               <Value />
               <InitialValue />
-              <UserDefined>false</UserDefined>
+              <UserDefined>true</UserDefined>
               <Complex>false</Complex>
-              <Sparse>false</Sparse>
             </type>
           </idpTable>
         </Inputs>
       </file>
     </fileset.inputtypes>
     <build-deliverables>
-      <file location="${PROJECT_ROOT}\codegen\lib\hr_processing" name="hr_processing.lib" optional="false">C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\codegen\lib\hr_processing\hr_processing.lib</file>
+      <file location="${PROJECT_ROOT}\codegen\lib\wavelet_peaks" name="wavelet_peaks.lib" optional="false">C:\Users\Robert Viramontes\Documents\GitHub\ece751-wearable-sensor-fusion\src\signal_processing\codegen\lib\wavelet_peaks\wavelet_peaks.lib</file>
     </build-deliverables>
     <workflow />
     <matlab>
