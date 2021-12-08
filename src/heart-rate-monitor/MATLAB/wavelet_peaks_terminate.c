@@ -2,31 +2,28 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
- * File: rtGetNaN.h
+ * File: wavelet_peaks_terminate.c
  *
  * MATLAB Coder version            : 5.3
  * C/C++ source code generated on  : 07-Dec-2021 17:22:13
  */
 
-#ifndef RTGETNAN_H
-#define RTGETNAN_H
-
 /* Include Files */
-#include "rtwtypes.h"
+#include "wavelet_peaks_terminate.h"
+#include "rt_nonfinite.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-extern real_T rtGetNaN(void);
-extern real32_T rtGetNaNF(void);
-
-#ifdef __cplusplus
-}
-#endif
-#endif
+/* Function Definitions */
 /*
- * File trailer for rtGetNaN.h
+ * Arguments    : void
+ * Return Type  : void
+ */
+void wavelet_peaks_terminate(void)
+{
+  /* (no terminate code required) */
+}
+
+/*
+ * File trailer for wavelet_peaks_terminate.c
  *
  * [EOF]
  */

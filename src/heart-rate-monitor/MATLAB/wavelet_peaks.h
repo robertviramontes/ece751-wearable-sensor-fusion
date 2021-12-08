@@ -2,17 +2,16 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
- * File: hr_processing_emxutil.h
+ * File: wavelet_peaks.h
  *
  * MATLAB Coder version            : 5.3
- * C/C++ source code generated on  : 06-Dec-2021 17:32:44
+ * C/C++ source code generated on  : 07-Dec-2021 17:22:13
  */
 
-#ifndef HR_PROCESSING_EMXUTIL_H
-#define HR_PROCESSING_EMXUTIL_H
+#ifndef WAVELET_PEAKS_H
+#define WAVELET_PEAKS_H
 
 /* Include Files */
-#include "hr_processing_types.h"
 #include "rtwtypes.h"
 #include <stddef.h>
 #include <stdlib.h>
@@ -22,11 +21,7 @@ extern "C" {
 #endif
 
 /* Function Declarations */
-extern void emxEnsureCapacity_real_T(emxArray_real_T *emxArray, int oldNumel);
-
-extern void emxFree_real_T(emxArray_real_T **pEmxArray);
-
-extern void emxInit_real_T(emxArray_real_T **pEmxArray);
+extern double wavelet_peaks(const float vals[200], unsigned int Fs);
 
 #ifdef __cplusplus
 }
@@ -34,7 +29,7 @@ extern void emxInit_real_T(emxArray_real_T **pEmxArray);
 
 #endif
 /*
- * File trailer for hr_processing_emxutil.h
+ * File trailer for wavelet_peaks.h
  *
  * [EOF]
  */
