@@ -25,8 +25,12 @@
 #include "MAX30105.h"
 #include <string.h>
 #include <stdio.h>
-
-#include "hr_processing.h"
+#include "arm_math.h"
+#include "arm_const_structs.h"
+#include <cmath>
+//#include "rt_nonfinite.h"
+//#include "wavelet_peaks.h"
+//#include "wavelet_peaks_terminate.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,17 +46,24 @@
 /* USER CODE BEGIN PM */
 #define I2C_BUF_LENGTH 288 // bytes for the max number of samples we might get
 #define MAX30105_ADDRESS          (0x57 << 1) //7-bit I2C Address, shifted left once
-static const uint8_t SAMPLE_WINDOW = 3; // seconds
+static const uint8_t SAMPLE_WINDOW = 8; // seconds
 
 static const uint32_t PPG_SAMPLING_FREQUENCY = 400;
 static const uint32_t PPG_AVG_RATE = 8;
 static const uint32_t PPG_SAMPLES_PER_SECOND = PPG_SAMPLING_FREQUENCY/PPG_AVG_RATE;
-static const uint32_t AUDIO_SAMPLES_PER_SECOND = 1000;
+
+static const uint32_t AUDIO_FS_BEFORE_AVG = 1000;
+static const uint32_t AUDIO_AVG_RATE = 2;
+static const uint32_t AUDIO_SAMPLES_PER_SECOND = AUDIO_FS_BEFORE_AVG / AUDIO_AVG_RATE;
 static const uint32_t PPG_BUF_SIZE = (PPG_SAMPLES_PER_SECOND * SAMPLE_WINDOW);
 static const uint32_t AUDIO_BUF_SIZE  = (AUDIO_SAMPLES_PER_SECOND * SAMPLE_WINDOW);
 
-#define I2S_FIFO_SIZE 1024
+#define I2S_FIFO_SIZE 1024 // buffer for the dma
 static const uint8_t MAX30105_FIFODATA =		0x07;
+
+static const uint16_t AUDIO_FFT_LEN = 4096;
+static const uint16_t PPG_FFT_LEN = 512;
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -71,9 +82,9 @@ UART_HandleTypeDef huart2;
 uint8_t i2c_buf[I2C_BUF_LENGTH];
 uint16_t data_in[I2S_FIFO_SIZE];
 MAX30105 *hr_sens;
-uint32_t *red_buf;
-uint32_t *ir_buf;
-int32_t *audio_buf;
+float *red_buf;
+float *ir_buf;
+float *audio_buf;
 uint16_t volatile ppg_buf_index = 0;
 uint16_t volatile audio_buf_index = 0;
 // Signal from timer that we should queue an I2C transfer from PPG
@@ -82,6 +93,8 @@ bool volatile queueI2cTransfer = false;
 // requesting data again.
 bool volatile waitingForI2c = false;
 
+arm_rfft_fast_instance_f32 varInstCfftF32;
+arm_rfft_fast_instance_f32 ppgFftInst;
 uint32_t volatile start_tick;
 uint32_t volatile end_tick;
 /* USER CODE END PV */
@@ -98,40 +111,58 @@ static void MX_TIM10_Init(void);
 /* USER CODE BEGIN PFP */
 
 void DMATransferComplete(DMA_HandleTypeDef *DmaHandle);
-static void argInit_200x1_real_T(double result[200]);
-static double argInit_real_T(void);
-static void main_hr_processing(void);
 void StartPpgRequest();
 void ProcessData();
 
-/* USER CODE END PFP */
+/* Function Declarations */
+static void argInit_10000x1_int32_T(int result[10000]);
+static void argInit_500x1_uint32_T(unsigned int result[500]);
+static void argInit_d500x1_uint32_T(unsigned int result_data[],
+                                    int *result_size);
+static int argInit_int32_T(void);
+static double argInit_real_T(void);
+static unsigned short argInit_uint16_T(void);
+static unsigned int argInit_uint32_T(void);
+static void main_hr_processing(void);
 
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-/* Function Definitions */
-/*
- * Arguments    : double result[200]
- * Return Type  : void
- */
-static void argInit_200x1_real_T(double result[200])
+
+float ppg_fft(float ppg_buf[PPG_BUF_SIZE])
 {
-  int idx0;
-  /* Loop over the array to initialize each element. */
-  for (idx0 = 0; idx0 < 200; idx0++) {
-    /* Set the value of the array element.
-Change this value to the value that the application requires. */
-    result[idx0] = argInit_real_T();
-  }
+  arm_status status;
+  float32_t maxValue;
+  uint32_t maxIndex;
+  status = ARM_MATH_SUCCESS;
+
+  // Fill an 2^n array with 0s for 0 paddign
+  float32_t fft_array[PPG_FFT_LEN];
+  arm_fill_f32(0, &fft_array[PPG_BUF_SIZE], PPG_FFT_LEN-PPG_BUF_SIZE);
+  float32_t mean;
+  // Get the DC component as the mean of the audio sample
+  arm_mean_f32(ppg_buf, PPG_BUF_SIZE, &mean);
+  // Subtract the mean from the audio buf data.
+  arm_fill_f32(mean, fft_array, PPG_BUF_SIZE);
+  arm_sub_f32(ppg_buf, fft_array, fft_array, PPG_BUF_SIZE);
+
+  float32_t fft_output[PPG_FFT_LEN];
+  uint8_t ifftFlag = 0; // 0=FFT, 1=InverseFFT
+  /* Process the data through the RFFT/RIFFT module */
+  arm_rfft_fast_f32 (&ppgFftInst, fft_array, fft_output, ifftFlag);
+  /* Process the data through the Complex Magnitude Module for
+  calculating the magnitude at each bin */
+  arm_cmplx_mag_f32(fft_output, fft_array, PPG_FFT_LEN/2);
+
+  float hz_per_bin = ((float) PPG_SAMPLES_PER_SECOND) / PPG_FFT_LEN;
+  uint32_t min_bin = std::floor(1.0 / hz_per_bin);
+  uint32_t max_bin = std::ceil(4.0 / hz_per_bin);
+
+  /* Calculates maxValue and returns corresponding BIN value */
+  arm_max_f32(&fft_array[min_bin], max_bin - min_bin, &maxValue, &maxIndex);
+
+  auto bpm = (maxIndex + min_bin) * hz_per_bin * 60.0;
+
+  return bpm;
 }
 
-/*
- * Arguments    : void
- * Return Type  : double
- */
-static double argInit_real_T(void)
-{
-  return 0.0;
-}
 
 /*
  * Arguments    : void
@@ -139,15 +170,57 @@ static double argInit_real_T(void)
  */
 static void main_hr_processing(void)
 {
-  double ppg_data_tmp[200];
-  double heart_rate;
-  /* Initialize function 'hr_processing' input arguments. */
-  /* Initialize function input argument 'ppg_data'. */
-  argInit_200x1_real_T(ppg_data_tmp);
-  /* Initialize function input argument 'mic_data'. */
-  /* Call the entry-point 'hr_processing'. */
-  heart_rate = hr_processing(ppg_data_tmp, ppg_data_tmp);
+  static short heartbeat;
+
+  arm_status status;
+  float32_t maxValue;
+  uint32_t maxIndex;
+  status = ARM_MATH_SUCCESS;
+
+  // Fill an 2^n array with 0s for 0 paddign
+  float32_t fft_array[AUDIO_FFT_LEN];
+  arm_fill_f32(0, &fft_array[AUDIO_BUF_SIZE], AUDIO_FFT_LEN-AUDIO_BUF_SIZE);
+  float32_t mean;
+  // Get the DC component as the mean of the audio sample
+  arm_mean_f32(audio_buf, AUDIO_BUF_SIZE, &mean);
+  // Subtract the mean from the audio buf data.
+  arm_fill_f32(mean, fft_array, AUDIO_BUF_SIZE);
+  arm_sub_f32(audio_buf, fft_array, fft_array, AUDIO_BUF_SIZE);
+
+  float32_t fft_output[AUDIO_FFT_LEN];
+  uint8_t ifftFlag = 0; // 0=FFT, 1=InverseFFT
+  /* Process the data through the RFFT/RIFFT module */
+  arm_rfft_fast_f32 (&varInstCfftF32, fft_array, fft_output, ifftFlag);
+  /* Process the data through the Complex Magnitude Module for
+  calculating the magnitude at each bin */
+  arm_cmplx_mag_f32(fft_output, fft_array, AUDIO_FFT_LEN/2);
+
+  float hz_per_bin = ((float) AUDIO_SAMPLES_PER_SECOND) / AUDIO_FFT_LEN;
+  uint32_t min_bin = std::floor(1.0 / hz_per_bin);
+  uint32_t max_bin = std::ceil(4.0 / hz_per_bin);
+
+  /* Calculates maxValue and returns corresponding BIN value */
+  arm_max_f32(&fft_array[min_bin], max_bin - min_bin, &maxValue, &maxIndex);
+
+  auto bpm_audio = (maxIndex + min_bin) * hz_per_bin * 60.0;
+
+  auto ir_bpm = ppg_fft(ir_buf);
+  auto red_bpm = ppg_fft(red_buf);
+//  auto ir_bpm = wavelet_peaks(ir_buf, PPG_SAMPLES_PER_SECOND);
+//  auto red_bpm = wavelet_peaks(red_buf, PPG_SAMPLES_PER_SECOND);
+  uint8_t uart_buf[64];
+  sprintf((char*)uart_buf,"red bpm:%.0f\r\n", red_bpm);
+  HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+  sprintf((char*)uart_buf,"ir bpm:%.0f\r\n", ir_bpm);
+  HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+  sprintf((char*)uart_buf,"audio bpm:%.0f\r\n", bpm_audio);
+  HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+//  heartbeat = hr_processing(ir_buf, PPG_BUF_SIZE,
+//		  	  	  	  	  	red_buf, PPG_BUF_SIZE,
+//							audio_buf, AUDIO_BUF_SIZE,
+//							PPG_SAMPLES_PER_SECOND, AUDIO_SAMPLES_PER_SECOND, heartbeat);
 }
+
 /* USER CODE END 0 */
 
 /**
@@ -173,7 +246,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  main_hr_processing();
+
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -186,13 +259,17 @@ int main(void)
   MX_TIM10_Init();
   /* USER CODE BEGIN 2 */
   //buffers for "chunk" of data given to algo
-  red_buf = (uint32_t*)calloc(PPG_BUF_SIZE, 4);
-  ir_buf = (uint32_t*)calloc(PPG_BUF_SIZE, 4);
-  audio_buf = (int32_t*)calloc(AUDIO_BUF_SIZE, 4);
+  red_buf = (float*)calloc(PPG_BUF_SIZE, 4);
+  ir_buf = (float*)calloc(PPG_BUF_SIZE, 4);
+  audio_buf = (float*)calloc(AUDIO_BUF_SIZE, 4);
 
   hr_sens = new MAX30105();
   hr_sens->begin(hi2c1);
   hr_sens->setup(0x1D, PPG_AVG_RATE, 2, PPG_SAMPLING_FREQUENCY, 215, 8192);
+
+  arm_status status;
+  status=arm_rfft_fast_init_f32(&varInstCfftF32, AUDIO_FFT_LEN);
+  status=arm_rfft_fast_init_f32(&ppgFftInst, PPG_FFT_LEN);
 
   // Start timer
   HAL_TIM_Base_Start_IT(&htim11);
@@ -484,21 +561,25 @@ void ProcessData()
 	// Capture the indices before outside forces can change them
 	auto local_audio_idx = audio_buf_index;
 	auto local_ppg_idx = ppg_buf_index;
+	main_hr_processing();
 
 	// Disable the data collection interrupts
 //	HAL_I2S_DMAStop(&hi2s1);
 //	HAL_TIM_Base_Stop_IT(&htim11);
 	// Log to console all the updated audio values
-	for (int i = 0; i < local_audio_idx; i += 1) {
-		sprintf((char*)uart_buf,"%li\r\n", audio_buf[i]);
-		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
-	}
-	// Log to console all the updated ppg values
-	for (int i = 0; i < local_ppg_idx; i += 1) {
-		sprintf((char*)uart_buf,"RED VAL:%li\r\n", red_buf[i]);
-		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
-		sprintf((char*)uart_buf,"IR VAL:%li\r\n", ir_buf[i]);
-		HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+	if(false)
+	{
+		for (int i = 0; i < local_audio_idx; i += 1) {
+			sprintf((char*)uart_buf,"%.0f\r\n", audio_buf[i]);
+			HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+		}
+		// Log to console all the updated ppg values
+		for (int i = 0; i < local_ppg_idx; i += 1) {
+			sprintf((char*)uart_buf,"RED VAL:%.0f\r\n", red_buf[i]);
+			HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+			sprintf((char*)uart_buf,"IR VAL:%.0f\r\n", ir_buf[i]);
+			HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+		}
 	}
 
 	// Reset the indices and re-enable the data collect interrupts
@@ -554,7 +635,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef * hi2c)
 
 		tempLong &= 0x3FFFF; //Zero out all but 18 bits
 
-		red_buf[ppg_buf_index] = tempLong; //Store this reading into the sense array
+		red_buf[ppg_buf_index] = (float)tempLong; //Store this reading into the sense array
 
 		if (activeLEDs > 1)
 		{
@@ -569,7 +650,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef * hi2c)
 
 		  tempLong &= 0x3FFFF; //Zero out all but 18 bits
 
-		  ir_buf[ppg_buf_index] = tempLong;
+		  ir_buf[ppg_buf_index] = (float) tempLong;
 		}
 
 		if (activeLEDs > 2)
@@ -600,17 +681,27 @@ void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
 	const uint8_t samplesToSkip = 32; // only pick 1 of 16 samples
 	const uint8_t bytesBetweenSamples = 4; // each sample is 2 bytes, have L and R in buffer but only want L
-	for (uint16_t i = 0; i < I2S_FIFO_SIZE; i += (samplesToSkip*bytesBetweenSamples))
+	const uint16_t for_increment = samplesToSkip * bytesBetweenSamples * AUDIO_AVG_RATE;
+	const uint8_t shift_amt = 1; // log2(AUDIO_AVG_RATE)
+	for (uint16_t i = 0; i < I2S_FIFO_SIZE; i += for_increment)
 	{
 		// we've filled the audio buffer
 		if (audio_buf_index >= AUDIO_BUF_SIZE) { return; }
 
-		// Parse the audio data
-		int32_t audio1 = (int32_t)(data_in[i] << 16 | data_in[i+1]);
-		audio1 = audio1 >> 14;
+		int32_t audio_avg = 0;
+		for (uint16_t j = 0; j < AUDIO_AVG_RATE; j++)
+		{
+			// Parse the audio data
+			int32_t temp = \
+					(int32_t)(data_in[i + (j*samplesToSkip*bytesBetweenSamples)] << 16 \
+							| data_in[i+1 + (j*samplesToSkip*bytesBetweenSamples)]);
+			// perform the req'd audio shift (14) and divide by our averaging shift_amt
+			temp = temp >> (14 + shift_amt);
+			audio_avg += temp;
+		}
 
 		// Add to buffer and increment
-		audio_buf[audio_buf_index] = audio1;
+		audio_buf[audio_buf_index] = (float) audio_avg;
 		audio_buf_index++;
 	}
 }
