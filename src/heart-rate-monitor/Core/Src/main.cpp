@@ -143,12 +143,12 @@ float fft(arm_rfft_fast_instance_f32 * fftInst, float *data_buf, uint32_t data_l
 	arm_mean_f32(data_buf, data_len, &mean);
 	// Subtract the mean from the audio buf data.
 	arm_fill_f32(mean, fft_array, data_len);
-	arm_sub_f32(data_buf, fft_array, fft_array, PPG_BUF_SIZE);
+	arm_sub_f32(data_buf, fft_array, fft_array, data_len);
 
 	float32_t fft_output[fft_len];
 	uint8_t ifftFlag = 0; // 0=FFT, 1=InverseFFT
 	/* Process the data through the RFFT/RIFFT module */
-	arm_rfft_fast_f32 (&ppgFftInst, fft_array, fft_output, ifftFlag);
+	arm_rfft_fast_f32 (fftInst, fft_array, fft_output, ifftFlag);
 	/* Process the data through the Complex Magnitude Module for
 	calculating the magnitude at each bin */
 	arm_cmplx_mag_f32(fft_output, fft_array, fft_len/2);
@@ -160,6 +160,12 @@ float fft(arm_rfft_fast_instance_f32 * fftInst, float *data_buf, uint32_t data_l
 	/* Calculates maxValue and returns corresponding BIN value */
 	arm_max_f32(&fft_array[min_bin], max_bin - min_bin, &maxValue, &maxIndex);
 
+	// Calculate the BPM.
+	// We add maxIndex and min_bin because the index is found in
+	// a subset of the larger array between (min_bin, max_bin). So
+	// we add the min_bin to account for this offset.
+	// Multiply by hz_per_bin to get frequency.
+	// Multiply by 60.0 BPM / Hz
 	auto bpm = (maxIndex + min_bin) * hz_per_bin * 60.0;
 
 	return bpm;
@@ -211,40 +217,9 @@ static void main_hr_processing(void)
 {
   static short heartbeat;
 
-  arm_status status;
-  float32_t maxValue;
-  uint32_t maxIndex;
-  status = ARM_MATH_SUCCESS;
-
-  // Fill an 2^n array with 0s for 0 paddign
-  float32_t fft_array[AUDIO_FFT_LEN];
-  arm_fill_f32(0, &fft_array[AUDIO_BUF_SIZE], AUDIO_FFT_LEN-AUDIO_BUF_SIZE);
-  float32_t mean;
-  // Get the DC component as the mean of the audio sample
-  arm_mean_f32(audio_buf, AUDIO_BUF_SIZE, &mean);
-  // Subtract the mean from the audio buf data.
-  arm_fill_f32(mean, fft_array, AUDIO_BUF_SIZE);
-  arm_sub_f32(audio_buf, fft_array, fft_array, AUDIO_BUF_SIZE);
-
-  float32_t fft_output[AUDIO_FFT_LEN];
-  uint8_t ifftFlag = 0; // 0=FFT, 1=InverseFFT
-  /* Process the data through the RFFT/RIFFT module */
-  arm_rfft_fast_f32 (&varInstCfftF32, fft_array, fft_output, ifftFlag);
-  /* Process the data through the Complex Magnitude Module for
-  calculating the magnitude at each bin */
-  arm_cmplx_mag_f32(fft_output, fft_array, AUDIO_FFT_LEN/2);
-
-  float hz_per_bin = ((float) AUDIO_SAMPLES_PER_SECOND) / AUDIO_FFT_LEN;
-  uint32_t min_bin = std::floor(1.0 / hz_per_bin);
-  uint32_t max_bin = std::ceil(4.0 / hz_per_bin);
-
-  /* Calculates maxValue and returns corresponding BIN value */
-  arm_max_f32(&fft_array[min_bin], max_bin - min_bin, &maxValue, &maxIndex);
-
-  auto bpm_audio = (maxIndex + min_bin) * hz_per_bin * 60.0;
-
-  auto ir_bpm = ppg_fft(ir_buf);
-  auto red_bpm = ppg_fft(red_buf);
+  auto audio_bpm = fft(&varInstCfftF32, audio_buf, AUDIO_BUF_SIZE, AUDIO_FFT_LEN, AUDIO_SAMPLES_PER_SECOND);
+  auto ir_bpm = fft(&ppgFftInst, ir_buf, PPG_BUF_SIZE, PPG_FFT_LEN, PPG_SAMPLES_PER_SECOND);
+  auto red_bpm = fft(&ppgFftInst, red_buf, PPG_BUF_SIZE, PPG_FFT_LEN, PPG_SAMPLES_PER_SECOND);;
 //  auto ir_bpm = wavelet_peaks(ir_buf, PPG_SAMPLES_PER_SECOND);
 //  auto red_bpm = wavelet_peaks(red_buf, PPG_SAMPLES_PER_SECOND);
   uint8_t uart_buf[64];
@@ -252,12 +227,9 @@ static void main_hr_processing(void)
   HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
   sprintf((char*)uart_buf,"ir bpm:%.0f\r\n", ir_bpm);
   HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
-  sprintf((char*)uart_buf,"audio bpm:%.0f\r\n", bpm_audio);
+  sprintf((char*)uart_buf,"audio bpm:%.0f\r\n", audio_bpm);
   HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
-//  heartbeat = hr_processing(ir_buf, PPG_BUF_SIZE,
-//		  	  	  	  	  	red_buf, PPG_BUF_SIZE,
-//							audio_buf, AUDIO_BUF_SIZE,
-//							PPG_SAMPLES_PER_SECOND, AUDIO_SAMPLES_PER_SECOND, heartbeat);
+
 }
 
 /* USER CODE END 0 */
