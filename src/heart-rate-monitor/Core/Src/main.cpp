@@ -125,6 +125,45 @@ static unsigned short argInit_uint16_T(void);
 static unsigned int argInit_uint32_T(void);
 static void main_hr_processing(void);
 
+/*
+ * Returns the BPM calculated for the data in data_buf.
+ */
+float fft(arm_rfft_fast_instance_f32 * fftInst, float *data_buf, uint32_t data_len, uint32_t fft_len, uint32_t fs)
+{
+	arm_status status;
+	float32_t maxValue;
+	uint32_t maxIndex;
+	status = ARM_MATH_SUCCESS;
+
+	// Fill an 2^n array with 0s for 0 padding
+	float32_t fft_array[fft_len];
+	arm_fill_f32(0, &fft_array[data_len], fft_len-data_len);
+	float32_t mean;
+	// Get the DC component as the mean of the audio sample
+	arm_mean_f32(data_buf, data_len, &mean);
+	// Subtract the mean from the audio buf data.
+	arm_fill_f32(mean, fft_array, data_len);
+	arm_sub_f32(data_buf, fft_array, fft_array, PPG_BUF_SIZE);
+
+	float32_t fft_output[fft_len];
+	uint8_t ifftFlag = 0; // 0=FFT, 1=InverseFFT
+	/* Process the data through the RFFT/RIFFT module */
+	arm_rfft_fast_f32 (&ppgFftInst, fft_array, fft_output, ifftFlag);
+	/* Process the data through the Complex Magnitude Module for
+	calculating the magnitude at each bin */
+	arm_cmplx_mag_f32(fft_output, fft_array, fft_len/2);
+
+	float hz_per_bin = ((float) fs) / fft_len;
+	uint32_t min_bin = std::floor(1.0 / hz_per_bin);
+	uint32_t max_bin = std::ceil(4.0 / hz_per_bin);
+
+	/* Calculates maxValue and returns corresponding BIN value */
+	arm_max_f32(&fft_array[min_bin], max_bin - min_bin, &maxValue, &maxIndex);
+
+	auto bpm = (maxIndex + min_bin) * hz_per_bin * 60.0;
+
+	return bpm;
+}
 
 float ppg_fft(float ppg_buf[PPG_BUF_SIZE])
 {
