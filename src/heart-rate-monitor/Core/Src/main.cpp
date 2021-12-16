@@ -540,11 +540,11 @@ void ProcessData()
 //	HAL_I2S_DMAStop(&hi2s1);
 //	HAL_TIM_Base_Stop_IT(&htim11);
 	// Log to console all the updated audio values
-	if(false)
+	if(true)
 	{
 		for (int i = 0; i < local_audio_idx; i += 1) {
 			sprintf((char*)uart_buf,"%.0f\r\n", audio_buf[i]);
-			HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+			//HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
 		}
 		// Log to console all the updated ppg values
 		for (int i = 0; i < local_ppg_idx; i += 1) {
