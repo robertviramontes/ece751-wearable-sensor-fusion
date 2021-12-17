@@ -28,9 +28,6 @@
 #include "arm_math.h"
 #include "arm_const_structs.h"
 #include <cmath>
-//#include "rt_nonfinite.h"
-//#include "wavelet_peaks.h"
-//#include "wavelet_peaks_terminate.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
