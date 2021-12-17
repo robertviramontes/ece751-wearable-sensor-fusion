@@ -7,6 +7,8 @@
   BSD license, all text above must be included in any redistribution.
  *****************************************************/
 
+// Last modified by Robert Viramontes, December 17 2021
+
 #include "MAX30105.h"
 #include <cstring>
 
