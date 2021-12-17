@@ -33,7 +33,6 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stm32f4xx.h"
-//#include "rtwtypes.h"
 #include <stddef.h>
 #include <stdlib.h>
 /* USER CODE END Includes */
