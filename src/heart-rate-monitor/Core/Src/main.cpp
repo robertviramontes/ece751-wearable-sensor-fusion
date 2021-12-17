@@ -89,6 +89,9 @@ bool volatile queueI2cTransfer = false;
 // Signal to timer that I2C transfer complete, OK to start
 // requesting data again.
 bool volatile waitingForI2c = false;
+// Indicate the first time calculating BPM, so we ignore history
+bool firstBpm = true;
+uint16_t heartbeat = 0;
 
 arm_rfft_fast_instance_f32 varInstCfftF32;
 arm_rfft_fast_instance_f32 ppgFftInst;
@@ -174,19 +177,32 @@ float fft(arm_rfft_fast_instance_f32 * fftInst, float *data_buf, uint32_t data_l
  */
 static void main_hr_processing(void)
 {
-  static short heartbeat;
 
   auto audio_bpm = fft(&varInstCfftF32, audio_buf, AUDIO_BUF_SIZE, AUDIO_FFT_LEN, AUDIO_SAMPLES_PER_SECOND);
   auto ir_bpm = fft(&ppgFftInst, ir_buf, PPG_BUF_SIZE, PPG_FFT_LEN, PPG_SAMPLES_PER_SECOND);
   auto red_bpm = fft(&ppgFftInst, red_buf, PPG_BUF_SIZE, PPG_FFT_LEN, PPG_SAMPLES_PER_SECOND);;
-//  auto ir_bpm = wavelet_peaks(ir_buf, PPG_SAMPLES_PER_SECOND);
-//  auto red_bpm = wavelet_peaks(red_buf, PPG_SAMPLES_PER_SECOND);
+
   uint8_t uart_buf[64];
-  sprintf((char*)uart_buf,"red bpm:%.0f\r\n", red_bpm);
-  HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
-  sprintf((char*)uart_buf,"ir bpm:%.0f\r\n", ir_bpm);
-  HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
-  sprintf((char*)uart_buf,"audio bpm:%.0f\r\n", audio_bpm);
+  if (false) {
+	  sprintf((char*)uart_buf,"red bpm:%.0f\r\n", red_bpm);
+	  HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+	  sprintf((char*)uart_buf,"ir bpm:%.0f\r\n", ir_bpm);
+	  HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+	  sprintf((char*)uart_buf,"audio bpm:%.0f\r\n", audio_bpm);
+	  HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
+  }
+
+  const float ppg_weight = 0.98;
+  const float audio_weight = 0.02;
+
+  if (firstBpm) {
+	  heartbeat = std::round(ppg_weight * ((ir_bpm + red_bpm) / 2.0) + audio_weight * audio_bpm);
+	  firstBpm = false;
+  } else {
+	  heartbeat = std::round(ppg_weight * ((ir_bpm + red_bpm + heartbeat) / 3.0) + audio_weight * audio_bpm);
+  }
+
+  sprintf((char*)uart_buf,"bpm:%u\r\n", heartbeat);
   HAL_UART_Transmit(&huart2, uart_buf, strlen((char*)uart_buf), 1);
 
 }
